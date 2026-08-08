@@ -1,30 +1,52 @@
 {
-  "name": "jennykim1980",
+  "name": "bazi-api",
   "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=production node dist/server.js",
+    "test": "vitest",
+    "prisma": "npx prisma migrate dev --name init && npx prisma generate && npx prisma db push",
+    "noEmit": "tsc --noEmit",
+    "docker-build": "docker compose up -d --build",
+    "docker-down": "docker compose down"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Md. Nasir Uddin Shoyas",
+  "license": "MIT",
   "dependencies": {
+    "@lemonsqueezy/lemonsqueezy.js": "^4.0.0",
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
+    "http-status": "^2.1.0",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
     "lunar-typescript": "^1.8.6",
     "moment-timezone": "^0.6.3",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^9.0.5",
+    "rate-limit-redis": "^6.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/moment-timezone": "^0.5.13",
     "@types/node": "^26.1.1",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^8.0.1",
+    "cross-env": "^10.1.0",
+    "prisma": "^6.19.3",
+    "ts-node-dev": "^2.0.0",
     "tsx": "^4.23.1",
-    "typescript": "^7.0.2"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10"
   }
 }

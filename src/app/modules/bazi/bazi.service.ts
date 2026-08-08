@@ -2,6 +2,7 @@ import { Solar, Lunar, LunarYear, I18n } from 'lunar-typescript';
 import moment from 'moment-timezone';
 import { IBaziRequest, IBaziResponseData, ILuckPillar } from './bazi.interface';
 import { AppError } from '../../../errors/AppError';
+import { translateObject } from '../../../helpers/i18n';
 
 const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> => {
   const { birthDate, birthTime, gender, timezone = 'Asia/Shanghai', language = 'en' } = payload;
@@ -271,7 +272,7 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
     },
   };
 
-  return response;
+  return translateObject(response, language || 'en');
 };
 
 export const BaziService = {

@@ -3,11 +3,18 @@ import validateRequest from '../../middlewares/validateRequest';
 import { baziValidationSchema } from './bazi.validation';
 import { BaziController } from './bazi.controller';
 
+import apiKeyGuard from '../../middlewares/apiKeyGuard';
+import { apiRateLimiter } from '../../middlewares/rateLimiter';
+import cacheResponse from '../../middlewares/cacheResponse';
+
 const router = express.Router();
 
 router.post(
   '/calculate',
+  apiKeyGuard(),
+  apiRateLimiter,
   validateRequest(baziValidationSchema),
+  cacheResponse(3600), // Cache for 1 hour
   BaziController.calculateBazi
 );
 

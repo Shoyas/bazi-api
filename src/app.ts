@@ -1,13 +1,24 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import { BaziRoutes } from "./app/modules/bazi/bazi.routes";
 
+import { AuthRoutes } from "./app/modules/auth/auth.routes";
+import { ApiKeyRoutes } from "./app/modules/apiKey/apiKey.routes";
+import { WebhookRoutes } from "./app/modules/webhook/webhook.routes";
+import { SubscriptionRoutes } from "./app/modules/subscription/subscription.routes";
+
 const app: Application = express();
+
+// Webhook Routes (Must be before express.json)
+app.use("/api/v1/webhooks", WebhookRoutes);
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use("/api/v1/auth", AuthRoutes);
+app.use("/api/v1/api-keys", ApiKeyRoutes);
+app.use("/api/v1/subscriptions", SubscriptionRoutes);
 app.use("/api/v1/bazi", BaziRoutes);
 
 // Root Route

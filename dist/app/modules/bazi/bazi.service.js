@@ -7,6 +7,7 @@ exports.BaziService = void 0;
 const lunar_typescript_1 = require("lunar-typescript");
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const AppError_1 = require("../../../errors/AppError");
+const i18n_1 = require("../../../helpers/i18n");
 const calculateBazi = async (payload) => {
     const { birthDate, birthTime, gender, timezone = 'Asia/Shanghai', language = 'en' } = payload;
     // 1. Validate and convert timezone
@@ -250,7 +251,7 @@ const calculateBazi = async (payload) => {
             },
         },
     };
-    return response;
+    return (0, i18n_1.translateObject)(response, language || 'en');
 };
 exports.BaziService = {
     calculateBazi,
