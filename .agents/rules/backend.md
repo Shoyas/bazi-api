@@ -34,7 +34,7 @@ Framework
 Database
 
 - Prisma ORM
-- MongoDB
+- PostgreSQL
 
 Validation
 
