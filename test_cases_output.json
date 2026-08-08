@@ -1,0 +1,871 @@
+{
+  "Case 001": {
+    "input": {
+      "birthDate": "1979-12-18",
+      "birthTime": "12:00",
+      "gender": "female",
+      "timezone": "Asia/Taipei",
+      "language": "en"
+    },
+    "solar": {
+      "solarYear": 1979,
+      "solarMonth": 12,
+      "solarDay": 18,
+      "solarHour": 12,
+      "solarMinute": 0,
+      "solarDateTime": "1979-12-18 12:00:00",
+      "weekDay": "二"
+    },
+    "lunar": {
+      "lunarYear": 1979,
+      "lunarMonth": 10,
+      "lunarDay": 29,
+      "leapMonth": 6,
+      "chineseDate": "一九七九年十月廿九"
+    },
+    "pillars": {
+      "yearPillar": "己未",
+      "monthPillar": "丙子",
+      "dayPillar": "己未",
+      "hourPillar": "庚午"
+    },
+    "heavenlyStems": {
+      "yearStem": "己",
+      "monthStem": "丙",
+      "dayStem": "己",
+      "hourStem": "庚"
+    },
+    "earthlyBranches": {
+      "yearBranch": "未",
+      "monthBranch": "子",
+      "dayBranch": "未",
+      "hourBranch": "午"
+    },
+    "fiveElements": {
+      "yearElement": "土土",
+      "monthElement": "火水",
+      "dayElement": "土土",
+      "hourElement": "金火",
+      "statistics": {
+        "Wood": "0%",
+        "Fire": "25%",
+        "Earth": "50%",
+        "Metal": "13%",
+        "Water": "13%"
+      }
+    },
+    "hiddenStems": {
+      "yearHiddenStems": [
+        "己",
+        "丁",
+        "乙"
+      ],
+      "monthHiddenStems": [
+        "癸"
+      ],
+      "dayHiddenStems": [
+        "己",
+        "丁",
+        "乙"
+      ],
+      "hourHiddenStems": [
+        "丁",
+        "己"
+      ]
+    },
+    "tenGods": {
+      "yearTenGod": "比肩",
+      "monthTenGod": "正印",
+      "dayTenGod": "日主",
+      "hourTenGod": "伤官",
+      "distribution": {
+        "比肩": "33%",
+        "正印": "8%",
+        "伤官": "8%",
+        "偏印": "25%",
+        "七杀": "17%",
+        "偏财": "8%"
+      }
+    },
+    "naYin": {
+      "yearNaYin": "天上火",
+      "monthNaYin": "涧下水",
+      "dayNaYin": "天上火",
+      "hourNaYin": "路旁土"
+    },
+    "zodiac": {
+      "chineseZodiac": "羊",
+      "animal": "羊"
+    },
+    "constellation": {
+      "westernConstellation": "射手"
+    },
+    "solarTerms": {
+      "currentSolarTerm": "",
+      "previousSolarTerm": "大雪",
+      "nextSolarTerm": "冬至"
+    },
+    "luckPillars": {
+      "direction": null,
+      "forward": true,
+      "startingAge": 6,
+      "startingDate": "1986-04-18",
+      "pillars": [
+        {
+          "age": 8,
+          "pillar": "丁丑"
+        },
+        {
+          "age": 18,
+          "pillar": "戊寅"
+        },
+        {
+          "age": 28,
+          "pillar": "己卯"
+        },
+        {
+          "age": 38,
+          "pillar": "庚辰"
+        },
+        {
+          "age": 48,
+          "pillar": "辛巳"
+        },
+        {
+          "age": 58,
+          "pillar": "壬午"
+        },
+        {
+          "age": 68,
+          "pillar": "癸未"
+        },
+        {
+          "age": 78,
+          "pillar": "甲申"
+        },
+        {
+          "age": 88,
+          "pillar": "乙酉"
+        }
+      ]
+    },
+    "analysis": {
+      "strongestElement": null,
+      "weakestElement": null,
+      "missingElements": [
+        "Wood"
+      ],
+      "balanced": null,
+      "voidBranch": "子丑",
+      "twelveGrowthPhases": [
+        "冠带",
+        "绝",
+        "冠带",
+        "临官"
+      ],
+      "godsAndStars": {
+        "nobleman": "子",
+        "peachBlossom": "子",
+        "academicStar": null,
+        "travelHorse": null,
+        "generalStar": null
+      }
+    }
+  },
+  "Case 002": {
+    "input": {
+      "birthDate": "2008-11-24",
+      "birthTime": "03:30",
+      "gender": "male",
+      "timezone": "America/Los_Angeles",
+      "language": "en"
+    },
+    "solar": {
+      "solarYear": 2008,
+      "solarMonth": 11,
+      "solarDay": 24,
+      "solarHour": 3,
+      "solarMinute": 30,
+      "solarDateTime": "2008-11-24 03:30:00",
+      "weekDay": "一"
+    },
+    "lunar": {
+      "lunarYear": 2008,
+      "lunarMonth": 10,
+      "lunarDay": 27,
+      "leapMonth": 0,
+      "chineseDate": "二〇〇八年十月廿七"
+    },
+    "pillars": {
+      "yearPillar": "戊子",
+      "monthPillar": "癸亥",
+      "dayPillar": "戊辰",
+      "hourPillar": "甲寅"
+    },
+    "heavenlyStems": {
+      "yearStem": "戊",
+      "monthStem": "癸",
+      "dayStem": "戊",
+      "hourStem": "甲"
+    },
+    "earthlyBranches": {
+      "yearBranch": "子",
+      "monthBranch": "亥",
+      "dayBranch": "辰",
+      "hourBranch": "寅"
+    },
+    "fiveElements": {
+      "yearElement": "土水",
+      "monthElement": "水水",
+      "dayElement": "土土",
+      "hourElement": "木木",
+      "statistics": {
+        "Wood": "25%",
+        "Fire": "0%",
+        "Earth": "38%",
+        "Metal": "0%",
+        "Water": "38%"
+      }
+    },
+    "hiddenStems": {
+      "yearHiddenStems": [
+        "癸"
+      ],
+      "monthHiddenStems": [
+        "壬",
+        "甲"
+      ],
+      "dayHiddenStems": [
+        "戊",
+        "乙",
+        "癸"
+      ],
+      "hourHiddenStems": [
+        "甲",
+        "丙",
+        "戊"
+      ]
+    },
+    "tenGods": {
+      "yearTenGod": "比肩",
+      "monthTenGod": "正财",
+      "dayTenGod": "日主",
+      "hourTenGod": "七杀",
+      "distribution": {
+        "比肩": "25%",
+        "正财": "25%",
+        "七杀": "25%",
+        "偏财": "8%",
+        "正官": "8%",
+        "偏印": "8%"
+      }
+    },
+    "naYin": {
+      "yearNaYin": "霹雳火",
+      "monthNaYin": "大海水",
+      "dayNaYin": "大林木",
+      "hourNaYin": "大溪水"
+    },
+    "zodiac": {
+      "chineseZodiac": "鼠",
+      "animal": "鼠"
+    },
+    "constellation": {
+      "westernConstellation": "射手"
+    },
+    "solarTerms": {
+      "currentSolarTerm": "",
+      "previousSolarTerm": "小雪",
+      "nextSolarTerm": "大雪"
+    },
+    "luckPillars": {
+      "direction": null,
+      "forward": true,
+      "startingAge": 4,
+      "startingDate": "2013-03-16",
+      "pillars": [
+        {
+          "age": 6,
+          "pillar": "甲子"
+        },
+        {
+          "age": 16,
+          "pillar": "乙丑"
+        },
+        {
+          "age": 26,
+          "pillar": "丙寅"
+        },
+        {
+          "age": 36,
+          "pillar": "丁卯"
+        },
+        {
+          "age": 46,
+          "pillar": "戊辰"
+        },
+        {
+          "age": 56,
+          "pillar": "己巳"
+        },
+        {
+          "age": 66,
+          "pillar": "庚午"
+        },
+        {
+          "age": 76,
+          "pillar": "辛未"
+        },
+        {
+          "age": 86,
+          "pillar": "壬申"
+        }
+      ]
+    },
+    "analysis": {
+      "strongestElement": null,
+      "weakestElement": null,
+      "missingElements": [
+        "Fire",
+        "Metal"
+      ],
+      "balanced": null,
+      "voidBranch": "戌亥",
+      "twelveGrowthPhases": [
+        "胎",
+        "绝",
+        "冠带",
+        "长生"
+      ],
+      "godsAndStars": {
+        "nobleman": null,
+        "peachBlossom": null,
+        "academicStar": null,
+        "travelHorse": "寅",
+        "generalStar": "子"
+      }
+    }
+  },
+  "Case 003": {
+    "input": {
+      "birthDate": "2009-12-01",
+      "birthTime": "09:50",
+      "gender": "male",
+      "timezone": "America/Los_Angeles",
+      "language": "en"
+    },
+    "solar": {
+      "solarYear": 2009,
+      "solarMonth": 12,
+      "solarDay": 1,
+      "solarHour": 9,
+      "solarMinute": 50,
+      "solarDateTime": "2009-12-01 09:50:00",
+      "weekDay": "二"
+    },
+    "lunar": {
+      "lunarYear": 2009,
+      "lunarMonth": 10,
+      "lunarDay": 15,
+      "leapMonth": 5,
+      "chineseDate": "二〇〇九年十月十五"
+    },
+    "pillars": {
+      "yearPillar": "己丑",
+      "monthPillar": "乙亥",
+      "dayPillar": "庚辰",
+      "hourPillar": "辛巳"
+    },
+    "heavenlyStems": {
+      "yearStem": "己",
+      "monthStem": "乙",
+      "dayStem": "庚",
+      "hourStem": "辛"
+    },
+    "earthlyBranches": {
+      "yearBranch": "丑",
+      "monthBranch": "亥",
+      "dayBranch": "辰",
+      "hourBranch": "巳"
+    },
+    "fiveElements": {
+      "yearElement": "土土",
+      "monthElement": "木水",
+      "dayElement": "金土",
+      "hourElement": "金火",
+      "statistics": {
+        "Wood": "13%",
+        "Fire": "13%",
+        "Earth": "38%",
+        "Metal": "25%",
+        "Water": "13%"
+      }
+    },
+    "hiddenStems": {
+      "yearHiddenStems": [
+        "己",
+        "癸",
+        "辛"
+      ],
+      "monthHiddenStems": [
+        "壬",
+        "甲"
+      ],
+      "dayHiddenStems": [
+        "戊",
+        "乙",
+        "癸"
+      ],
+      "hourHiddenStems": [
+        "丙",
+        "庚",
+        "戊"
+      ]
+    },
+    "tenGods": {
+      "yearTenGod": "正印",
+      "monthTenGod": "正财",
+      "dayTenGod": "日主",
+      "hourTenGod": "劫财",
+      "distribution": {
+        "正印": "14%",
+        "正财": "14%",
+        "劫财": "14%",
+        "伤官": "14%",
+        "食神": "7%",
+        "偏财": "7%",
+        "偏印": "14%",
+        "七杀": "7%",
+        "比肩": "7%"
+      }
+    },
+    "naYin": {
+      "yearNaYin": "霹雳火",
+      "monthNaYin": "山头火",
+      "dayNaYin": "白蜡金",
+      "hourNaYin": "白蜡金"
+    },
+    "zodiac": {
+      "chineseZodiac": "牛",
+      "animal": "牛"
+    },
+    "constellation": {
+      "westernConstellation": "射手"
+    },
+    "solarTerms": {
+      "currentSolarTerm": "",
+      "previousSolarTerm": "小雪",
+      "nextSolarTerm": "大雪"
+    },
+    "luckPillars": {
+      "direction": null,
+      "forward": false,
+      "startingAge": 7,
+      "startingDate": "2017-11-11",
+      "pillars": [
+        {
+          "age": 9,
+          "pillar": "甲戌"
+        },
+        {
+          "age": 19,
+          "pillar": "癸酉"
+        },
+        {
+          "age": 29,
+          "pillar": "壬申"
+        },
+        {
+          "age": 39,
+          "pillar": "辛未"
+        },
+        {
+          "age": 49,
+          "pillar": "庚午"
+        },
+        {
+          "age": 59,
+          "pillar": "己巳"
+        },
+        {
+          "age": 69,
+          "pillar": "戊辰"
+        },
+        {
+          "age": 79,
+          "pillar": "丁卯"
+        },
+        {
+          "age": 89,
+          "pillar": "丙寅"
+        }
+      ]
+    },
+    "analysis": {
+      "strongestElement": null,
+      "weakestElement": null,
+      "missingElements": [],
+      "balanced": null,
+      "voidBranch": "申酉",
+      "twelveGrowthPhases": [
+        "墓",
+        "病",
+        "养",
+        "长生"
+      ],
+      "godsAndStars": {
+        "nobleman": "丑",
+        "peachBlossom": null,
+        "academicStar": "亥",
+        "travelHorse": "亥",
+        "generalStar": null
+      }
+    }
+  },
+  "Case 004": {
+    "input": {
+      "birthDate": "2011-05-20",
+      "birthTime": "08:03",
+      "gender": "female",
+      "timezone": "America/Los_Angeles",
+      "language": "en"
+    },
+    "solar": {
+      "solarYear": 2011,
+      "solarMonth": 5,
+      "solarDay": 20,
+      "solarHour": 8,
+      "solarMinute": 3,
+      "solarDateTime": "2011-05-20 08:03:00",
+      "weekDay": "五"
+    },
+    "lunar": {
+      "lunarYear": 2011,
+      "lunarMonth": 4,
+      "lunarDay": 18,
+      "leapMonth": 0,
+      "chineseDate": "二〇一一年四月十八"
+    },
+    "pillars": {
+      "yearPillar": "辛卯",
+      "monthPillar": "癸巳",
+      "dayPillar": "乙亥",
+      "hourPillar": "庚辰"
+    },
+    "heavenlyStems": {
+      "yearStem": "辛",
+      "monthStem": "癸",
+      "dayStem": "乙",
+      "hourStem": "庚"
+    },
+    "earthlyBranches": {
+      "yearBranch": "卯",
+      "monthBranch": "巳",
+      "dayBranch": "亥",
+      "hourBranch": "辰"
+    },
+    "fiveElements": {
+      "yearElement": "金木",
+      "monthElement": "水火",
+      "dayElement": "木水",
+      "hourElement": "金土",
+      "statistics": {
+        "Wood": "25%",
+        "Fire": "13%",
+        "Earth": "13%",
+        "Metal": "25%",
+        "Water": "25%"
+      }
+    },
+    "hiddenStems": {
+      "yearHiddenStems": [
+        "乙"
+      ],
+      "monthHiddenStems": [
+        "丙",
+        "庚",
+        "戊"
+      ],
+      "dayHiddenStems": [
+        "壬",
+        "甲"
+      ],
+      "hourHiddenStems": [
+        "戊",
+        "乙",
+        "癸"
+      ]
+    },
+    "tenGods": {
+      "yearTenGod": "七杀",
+      "monthTenGod": "偏印",
+      "dayTenGod": "日主",
+      "hourTenGod": "正官",
+      "distribution": {
+        "七杀": "8%",
+        "偏印": "17%",
+        "正官": "17%",
+        "比肩": "17%",
+        "伤官": "8%",
+        "正财": "17%",
+        "正印": "8%",
+        "劫财": "8%"
+      }
+    },
+    "naYin": {
+      "yearNaYin": "松柏木",
+      "monthNaYin": "长流水",
+      "dayNaYin": "山头火",
+      "hourNaYin": "白蜡金"
+    },
+    "zodiac": {
+      "chineseZodiac": "兔",
+      "animal": "兔"
+    },
+    "constellation": {
+      "westernConstellation": "金牛"
+    },
+    "solarTerms": {
+      "currentSolarTerm": "",
+      "previousSolarTerm": "立夏",
+      "nextSolarTerm": "小满"
+    },
+    "luckPillars": {
+      "direction": null,
+      "forward": true,
+      "startingAge": 5,
+      "startingDate": "2017-01-20",
+      "pillars": [
+        {
+          "age": 7,
+          "pillar": "甲午"
+        },
+        {
+          "age": 17,
+          "pillar": "乙未"
+        },
+        {
+          "age": 27,
+          "pillar": "丙申"
+        },
+        {
+          "age": 37,
+          "pillar": "丁酉"
+        },
+        {
+          "age": 47,
+          "pillar": "戊戌"
+        },
+        {
+          "age": 57,
+          "pillar": "己亥"
+        },
+        {
+          "age": 67,
+          "pillar": "庚子"
+        },
+        {
+          "age": 77,
+          "pillar": "辛丑"
+        },
+        {
+          "age": 87,
+          "pillar": "壬寅"
+        }
+      ]
+    },
+    "analysis": {
+      "strongestElement": null,
+      "weakestElement": null,
+      "missingElements": [],
+      "balanced": null,
+      "voidBranch": "申酉",
+      "twelveGrowthPhases": [
+        "临官",
+        "沐浴",
+        "死",
+        "冠带"
+      ],
+      "godsAndStars": {
+        "nobleman": null,
+        "peachBlossom": null,
+        "academicStar": null,
+        "travelHorse": "巳",
+        "generalStar": "卯"
+      }
+    }
+  },
+  "Case 005": {
+    "input": {
+      "birthDate": "1960-02-26",
+      "birthTime": "12:00",
+      "gender": "male",
+      "timezone": "Asia/Manila",
+      "language": "en"
+    },
+    "solar": {
+      "solarYear": 1960,
+      "solarMonth": 2,
+      "solarDay": 26,
+      "solarHour": 12,
+      "solarMinute": 0,
+      "solarDateTime": "1960-02-26 12:00:00",
+      "weekDay": "五"
+    },
+    "lunar": {
+      "lunarYear": 1960,
+      "lunarMonth": 1,
+      "lunarDay": 30,
+      "leapMonth": 6,
+      "chineseDate": "一九六〇年正月三十"
+    },
+    "pillars": {
+      "yearPillar": "庚子",
+      "monthPillar": "戊寅",
+      "dayPillar": "甲申",
+      "hourPillar": "庚午"
+    },
+    "heavenlyStems": {
+      "yearStem": "庚",
+      "monthStem": "戊",
+      "dayStem": "甲",
+      "hourStem": "庚"
+    },
+    "earthlyBranches": {
+      "yearBranch": "子",
+      "monthBranch": "寅",
+      "dayBranch": "申",
+      "hourBranch": "午"
+    },
+    "fiveElements": {
+      "yearElement": "金水",
+      "monthElement": "土木",
+      "dayElement": "木金",
+      "hourElement": "金火",
+      "statistics": {
+        "Wood": "25%",
+        "Fire": "13%",
+        "Earth": "13%",
+        "Metal": "38%",
+        "Water": "13%"
+      }
+    },
+    "hiddenStems": {
+      "yearHiddenStems": [
+        "癸"
+      ],
+      "monthHiddenStems": [
+        "甲",
+        "丙",
+        "戊"
+      ],
+      "dayHiddenStems": [
+        "庚",
+        "壬",
+        "戊"
+      ],
+      "hourHiddenStems": [
+        "丁",
+        "己"
+      ]
+    },
+    "tenGods": {
+      "yearTenGod": "七杀",
+      "monthTenGod": "偏财",
+      "dayTenGod": "日主",
+      "hourTenGod": "七杀",
+      "distribution": {
+        "七杀": "25%",
+        "偏财": "25%",
+        "正印": "8%",
+        "比肩": "8%",
+        "食神": "8%",
+        "偏印": "8%",
+        "伤官": "8%",
+        "正财": "8%"
+      }
+    },
+    "naYin": {
+      "yearNaYin": "壁上土",
+      "monthNaYin": "城头土",
+      "dayNaYin": "泉中水",
+      "hourNaYin": "路旁土"
+    },
+    "zodiac": {
+      "chineseZodiac": "鼠",
+      "animal": "鼠"
+    },
+    "constellation": {
+      "westernConstellation": "双鱼"
+    },
+    "solarTerms": {
+      "currentSolarTerm": "",
+      "previousSolarTerm": "雨水",
+      "nextSolarTerm": "惊蛰"
+    },
+    "luckPillars": {
+      "direction": null,
+      "forward": true,
+      "startingAge": 2,
+      "startingDate": "1962-12-16",
+      "pillars": [
+        {
+          "age": 3,
+          "pillar": "己卯"
+        },
+        {
+          "age": 13,
+          "pillar": "庚辰"
+        },
+        {
+          "age": 23,
+          "pillar": "辛巳"
+        },
+        {
+          "age": 33,
+          "pillar": "壬午"
+        },
+        {
+          "age": 43,
+          "pillar": "癸未"
+        },
+        {
+          "age": 53,
+          "pillar": "甲申"
+        },
+        {
+          "age": 63,
+          "pillar": "乙酉"
+        },
+        {
+          "age": 73,
+          "pillar": "丙戌"
+        },
+        {
+          "age": 83,
+          "pillar": "丁亥"
+        }
+      ]
+    },
+    "analysis": {
+      "strongestElement": null,
+      "weakestElement": null,
+      "missingElements": [],
+      "balanced": null,
+      "voidBranch": "午未",
+      "twelveGrowthPhases": [
+        "沐浴",
+        "临官",
+        "绝",
+        "死"
+      ],
+      "godsAndStars": {
+        "nobleman": null,
+        "peachBlossom": null,
+        "academicStar": null,
+        "travelHorse": "寅",
+        "generalStar": "子"
+      }
+    }
+  }
+}
