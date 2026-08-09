@@ -23,9 +23,8 @@ const handleLemonSqueezyWebhook = async (req: Request, res: Response) => {
   try {
     const payload = JSON.parse(req.body.toString('utf8'));
     const eventName = payload.meta.event_name;
-    const eventData = payload.data;
 
-    await WebhookService.processLemonSqueezyEvent(eventName, eventData);
+    await WebhookService.processLemonSqueezyEvent(eventName, payload);
 
     res.status(httpStatus.OK).send('Webhook processed');
   } catch (error) {

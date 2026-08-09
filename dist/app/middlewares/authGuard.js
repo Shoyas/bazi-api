@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_status_1 = __importDefault(require("http-status"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const AppError_1 = require("../../errors/AppError");
-const authGuard = () => {
+const authGuard = (...requiredRoles) => {
     return async (req, res, next) => {
         try {
             const token = req.headers.authorization?.split(' ')[1];
@@ -19,6 +19,9 @@ const authGuard = () => {
             }
             catch (error) {
                 throw new AppError_1.AppError(http_status_1.default.UNAUTHORIZED, 'Invalid token');
+            }
+            if (requiredRoles.length && !requiredRoles.includes(verifiedUser.role)) {
+                throw new AppError_1.AppError(http_status_1.default.FORBIDDEN, 'Forbidden access');
             }
             req.user = verifiedUser;
             next();

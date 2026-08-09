@@ -5,7 +5,15 @@ import { BaziService } from './bazi.service';
 import { IBaziResponseData } from './bazi.interface';
 
 const calculateBazi = catchAsync(async (req: Request, res: Response) => {
-  const result = await BaziService.calculateBazi(req.body);
+  const userId = req.apiKeyUser?.userId;
+  
+  let user = null;
+  if (userId) {
+    const { prisma } = require('../../../shared/prisma');
+    user = await prisma.user.findUnique({ where: { id: userId }, include: { subscription: true } });
+  }
+
+  const result = await BaziService.calculateBazi(req.body, user);
 
   sendResponse<IBaziResponseData>(res, {
     statusCode: 200,

@@ -53,6 +53,43 @@ export const cronWorker = new Worker(
         console.error('[Cron Worker] Error during subscription cleanup:', error);
         throw error;
       }
+    } else if (job.name === 'apikey-cleanup') {
+      try {
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
+        // Find all active API keys that are older than 10 days
+        // but only for FREE users.
+        const expiredKeys = await prisma.apiKey.findMany({
+          where: {
+            isActive: true,
+            createdAt: { lt: tenDaysAgo },
+            user: {
+              OR: [
+                { subscription: null },
+                { subscription: { plan: 'FREE' } },
+              ],
+            },
+          },
+        });
+
+        if (expiredKeys.length > 0) {
+          const updated = await prisma.apiKey.updateMany({
+            where: {
+              id: { in: expiredKeys.map((k) => k.id) },
+            },
+            data: {
+              isActive: false,
+            },
+          });
+          console.log(`[Cron Worker] API Key cleanup completed. Revoked ${updated.count} expired FREE API keys.`);
+        } else {
+          console.log('[Cron Worker] No expired FREE API keys found.');
+        }
+      } catch (error) {
+        console.error('[Cron Worker] Error during API key cleanup:', error);
+        throw error;
+      }
     } else {
       console.warn(`[Cron Worker] Unknown job name: ${job.name}`);
     }

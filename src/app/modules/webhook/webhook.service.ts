@@ -1,9 +1,10 @@
 import { prisma } from '../../../shared/prisma';
 import { SubscriptionPlan } from '@prisma/client';
 
-const processLemonSqueezyEvent = async (eventName: string, eventData: any) => {
-  const attributes = eventData.attributes;
-  const customData = metaDataExtraction(eventData);
+const processLemonSqueezyEvent = async (eventName: string, payload: any) => {
+  const attributes = payload.data.attributes;
+  const customData = payload.meta?.custom_data;
+  const subscriptionId = payload.data.id.toString();
 
   // In LemonSqueezy, we pass userId in custom_data during checkout creation
   const userId = customData?.user_id;
@@ -13,12 +14,22 @@ const processLemonSqueezyEvent = async (eventName: string, eventData: any) => {
     case 'subscription_updated':
       if (userId) {
         let plan: SubscriptionPlan = 'FREE';
-        // Map LS variant ID to our plan, this requires mapping logic. Assuming variant_id or product_name gives the plan.
-        const productName = attributes.product_name?.toLowerCase() || '';
-        if (productName.includes('yearly')) {
+        
+        const variantId = attributes.variant_id?.toString();
+        
+        // Exact match with env variables is the safest way
+        if (variantId === process.env.LEMONSQUEEZY_VARIANT_YEARLY) {
           plan = 'YEARLY';
-        } else if (productName.includes('monthly')) {
+        } else if (variantId === process.env.LEMONSQUEEZY_VARIANT_MONTHLY) {
           plan = 'MONTHLY';
+        } else {
+          // Fallback to product name check if for some reason variant_id fails
+          const productName = attributes.product_name?.toLowerCase() || '';
+          if (productName.includes('yearly')) {
+            plan = 'YEARLY';
+          } else if (productName.includes('monthly')) {
+            plan = 'MONTHLY';
+          }
         }
 
         await prisma.subscription.upsert({
@@ -26,7 +37,7 @@ const processLemonSqueezyEvent = async (eventName: string, eventData: any) => {
           update: {
             plan,
             lemonSqueezyId: attributes.customer_id.toString(),
-            lemonSubscriptionId: eventData.id.toString(),
+            lemonSubscriptionId: subscriptionId,
             status: attributes.status,
             endDate: attributes.renews_at ? new Date(attributes.renews_at) : null,
           },
@@ -34,11 +45,13 @@ const processLemonSqueezyEvent = async (eventName: string, eventData: any) => {
             userId,
             plan,
             lemonSqueezyId: attributes.customer_id.toString(),
-            lemonSubscriptionId: eventData.id.toString(),
+            lemonSubscriptionId: subscriptionId,
             status: attributes.status,
             endDate: attributes.renews_at ? new Date(attributes.renews_at) : null,
           },
         });
+      } else {
+        console.warn('Webhook received but user_id is missing in custom_data');
       }
       break;
 
@@ -69,14 +82,6 @@ const processLemonSqueezyEvent = async (eventName: string, eventData: any) => {
     default:
       console.log(`Unhandled Lemon Squeezy event: ${eventName}`);
   }
-};
-
-const metaDataExtraction = (data: any) => {
-  // Extract custom_data from meta if available
-  // In Lemon Squeezy, webhook payloads include a meta object with custom_data
-  // but it's not nested inside 'data' usually, it's at the root.
-  // We'll adjust it if it's passed differently.
-  return data.meta?.custom_data;
 };
 
 export const WebhookService = {

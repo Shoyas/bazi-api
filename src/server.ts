@@ -16,7 +16,13 @@ const startServer = async () => {
   console.log('[BullMQ] Scheduled otp-cleanup repeatable job');
 
   await cronQueue.add('subscription-cleanup', {}, {
-    repeat: { pattern: '0 0 * * *' } // Every midnight
+    repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+    jobId: 'daily-subscription-cleanup'
+  });
+
+  await cronQueue.add('apikey-cleanup', {}, {
+    repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+    jobId: 'daily-apikey-cleanup'
   });
   console.log('[BullMQ] Scheduled subscription-cleanup repeatable job');
   

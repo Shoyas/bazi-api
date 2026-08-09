@@ -8,12 +8,16 @@ const lunar_typescript_1 = require("lunar-typescript");
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const AppError_1 = require("../../../errors/AppError");
 const i18n_1 = require("../../../helpers/i18n");
-const calculateBazi = async (payload) => {
+const calculateBazi = async (payload, user = null) => {
     const { birthDate, birthTime, gender, timezone = 'Asia/Shanghai', language = 'en' } = payload;
     // 1. Validate and convert timezone
     let userTime;
+    let adjustedBirthTime = birthTime;
+    if (!birthTime || birthTime === '' || birthTime === '00' || birthTime === '00:00') {
+        adjustedBirthTime = '12:00';
+    }
     try {
-        userTime = moment_timezone_1.default.tz(`${birthDate} ${birthTime || '12:00'}`, 'YYYY-MM-DD HH:mm', timezone);
+        userTime = moment_timezone_1.default.tz(`${birthDate} ${adjustedBirthTime}`, 'YYYY-MM-DD HH:mm', timezone);
         if (!userTime.isValid()) {
             throw new AppError_1.AppError(400, 'Invalid birth date or time');
         }
@@ -128,8 +132,8 @@ const calculateBazi = async (payload) => {
     // ==========================================
     // PHASE 2: OUTPUT GENERATION (USER LANGUAGE)
     // ==========================================
-    // Set language to the user's requested language before generating output
-    lunar_typescript_1.I18n.setLanguage(language === 'zh' ? 'chs' : 'en');
+    // Set language to Chinese. The translateObject will translate it to the user's language based on dictionaries.
+    lunar_typescript_1.I18n.setLanguage('chs');
     // Re-fetch Yun and DaYun with output language
     const yun = eightChar.getYun(gender === 'male' ? 1 : 0);
     const daYunArr = yun.getDaYun();
@@ -141,10 +145,10 @@ const calculateBazi = async (payload) => {
         pillar: daYun.getGanZhi(),
     }));
     const lunarYearObj = lunar_typescript_1.LunarYear.fromYear(lunar.getYear());
-    const response = {
+    let response = {
         input: {
             birthDate,
-            birthTime: birthTime || '12:00', // ensure it defaults to 12:00
+            birthTime: adjustedBirthTime,
             gender,
             timezone,
             language,
@@ -156,9 +160,16 @@ const calculateBazi = async (payload) => {
             solarHour: solar.getHour(),
             solarMinute: solar.getMinute(),
             solarDateTime: solar.toYmdHms(),
-            weekDay: language === 'zh'
-                ? solar.getWeekInChinese()
-                : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][solar.getWeek()],
+            weekDay: (() => {
+                const week = solar.getWeek();
+                if (language === 'zh' || language === 'chs')
+                    return solar.getWeekInChinese();
+                if (language === 'bn')
+                    return ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'][week];
+                if (language === 'es')
+                    return ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][week];
+                return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][week];
+            })(),
         },
         lunar: {
             lunarYear: lunar.getYear(),
@@ -251,6 +262,29 @@ const calculateBazi = async (payload) => {
             },
         },
     };
+    // Limit response for FREE users older than 14 days
+    if (user) {
+        const plan = user.subscription?.plan || 'FREE';
+        const fourteenDaysAgo = new Date();
+        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+        if (plan === 'FREE' && user.createdAt < fourteenDaysAgo) {
+            response = {
+                ...response,
+                hiddenStems: null,
+                tenGods: null,
+                naYin: null,
+                zodiac: null,
+                constellation: null,
+                solarTerms: null,
+                luckPillars: null,
+                analysis: {
+                    ...response.analysis,
+                    godsAndStars: null,
+                    twelveGrowthPhases: null,
+                },
+            };
+        }
+    }
     return (0, i18n_1.translateObject)(response, language || 'en');
 };
 exports.BaziService = {

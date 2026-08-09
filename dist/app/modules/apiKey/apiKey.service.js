@@ -17,6 +17,16 @@ const generateApiKey = async (userId) => {
     if (!user) {
         throw new AppError_1.AppError(http_status_1.default.NOT_FOUND, 'User not found');
     }
+    const activeKeysCount = await prisma_1.prisma.apiKey.count({
+        where: { userId, isActive: true },
+    });
+    const plan = user.subscription?.plan || 'FREE';
+    if (plan === 'FREE' && activeKeysCount >= 1) {
+        throw new AppError_1.AppError(http_status_1.default.BAD_REQUEST, 'Free users can only have 1 active API Key at a time.');
+    }
+    if ((plan === 'MONTHLY' || plan === 'YEARLY') && activeKeysCount >= 20) {
+        throw new AppError_1.AppError(http_status_1.default.BAD_REQUEST, 'Subscribed users can have a maximum of 20 active API Keys at a time.');
+    }
     // Generate a raw API Key
     const rawKey = crypto_1.default.randomBytes(32).toString('hex');
     const apiKey = `bazi_${rawKey}`;

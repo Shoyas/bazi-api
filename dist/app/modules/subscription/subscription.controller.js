@@ -19,6 +19,60 @@ const getCheckoutUrl = (0, catchAsync_1.default)(async (req, res) => {
         data: result,
     });
 });
+const cancelSubscription = (0, catchAsync_1.default)(async (req, res) => {
+    const userId = req.user?.userId;
+    const result = await subscription_service_1.SubscriptionService.cancelUserSubscription(userId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: result.message,
+        data: result.subscription,
+    });
+});
+const resumeSubscription = (0, catchAsync_1.default)(async (req, res) => {
+    const userId = req.user?.userId;
+    const result = await subscription_service_1.SubscriptionService.resumeUserSubscription(userId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: result.message,
+        data: result.subscription,
+    });
+});
+const getPortalUrl = (0, catchAsync_1.default)(async (req, res) => {
+    const userId = req.user?.userId;
+    const result = await subscription_service_1.SubscriptionService.getCustomerPortalUrl(userId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Customer portal URL retrieved successfully',
+        data: result,
+    });
+});
+const getMySubscription = (0, catchAsync_1.default)(async (req, res) => {
+    const userId = req.user?.userId;
+    const result = await subscription_service_1.SubscriptionService.getMySubscription(userId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Subscription retrieved successfully',
+        data: result,
+    });
+});
+const getAllSubscriptions = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await subscription_service_1.SubscriptionService.getAllSubscriptions();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'All subscriptions retrieved successfully',
+        data: result,
+    });
+});
 exports.SubscriptionController = {
     getCheckoutUrl,
+    cancelSubscription,
+    resumeSubscription,
+    getPortalUrl,
+    getMySubscription,
+    getAllSubscriptions,
 };

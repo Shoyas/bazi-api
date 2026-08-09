@@ -4,27 +4,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const bazi_routes_1 = require("./app/modules/bazi/bazi.routes");
-const auth_routes_1 = require("./app/modules/auth/auth.routes");
-const apiKey_routes_1 = require("./app/modules/apiKey/apiKey.routes");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const cors_1 = __importDefault(require("cors"));
+const cors_2 = __importDefault(require("../src/config/cors"));
 const webhook_routes_1 = require("./app/modules/webhook/webhook.routes");
-const subscription_routes_1 = require("./app/modules/subscription/subscription.routes");
+const routes_1 = __importDefault(require("./app/routes"));
+const config_1 = __importDefault(require("./config"));
+const formatUptime_1 = require("./helpers/utils/formatUptime");
 const app = (0, express_1.default)();
 // Webhook Routes (Must be before express.json)
-app.use("/api/v1/webhooks", webhook_routes_1.WebhookRoutes);
+app.use("/api/v1/webhook", webhook_routes_1.WebhookRoutes);
 // Middlewares
+app.use((0, cors_1.default)(cors_2.default));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use((0, cookie_parser_1.default)());
 // Routes
-app.use("/api/v1/auth", auth_routes_1.AuthRoutes);
-app.use("/api/v1/api-keys", apiKey_routes_1.ApiKeyRoutes);
-app.use("/api/v1/subscriptions", subscription_routes_1.SubscriptionRoutes);
-app.use("/api/v1/bazi", bazi_routes_1.BaziRoutes);
+app.use("/api/v1", routes_1.default);
 // Root Route
 app.get("/", (req, res) => {
     res.json({
         success: true,
         message: "BaZi API Server is running.",
+        environment: config_1.default.node_env,
+        port: config_1.default.port,
+        uptime: (0, formatUptime_1.formatUptime)(process.uptime()),
+        timestamp: new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+        }),
     });
 });
 // 404 Handler

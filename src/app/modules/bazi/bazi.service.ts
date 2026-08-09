@@ -4,7 +4,7 @@ import { IBaziRequest, IBaziResponseData, ILuckPillar } from './bazi.interface';
 import { AppError } from '../../../errors/AppError';
 import { translateObject } from '../../../helpers/i18n';
 
-const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> => {
+const calculateBazi = async (payload: IBaziRequest, user: any = null): Promise<IBaziResponseData> => {
   const { birthDate, birthTime, gender, timezone = 'Asia/Shanghai', language = 'en' } = payload;
 
   // 1. Validate and convert timezone
@@ -150,8 +150,8 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
   // ==========================================
   // PHASE 2: OUTPUT GENERATION (USER LANGUAGE)
   // ==========================================
-  // Set language to the user's requested language before generating output
-  I18n.setLanguage(language === 'zh' ? 'chs' : 'en');
+  // Set language to Chinese. The translateObject will translate it to the user's language based on dictionaries.
+  I18n.setLanguage('chs');
   
   // Re-fetch Yun and DaYun with output language
   const yun = eightChar.getYun(gender === 'male' ? 1 : 0);
@@ -167,7 +167,7 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
 
   const lunarYearObj = LunarYear.fromYear(lunar.getYear());
 
-  const response: IBaziResponseData = {
+  let response: IBaziResponseData = {
     input: {
       birthDate,
       birthTime: adjustedBirthTime,
@@ -182,9 +182,13 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
       solarHour: solar.getHour(),
       solarMinute: solar.getMinute(),
       solarDateTime: solar.toYmdHms(),
-      weekDay: language === 'zh' 
-        ? solar.getWeekInChinese() 
-        : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][solar.getWeek()],
+      weekDay: (() => {
+        const week = solar.getWeek();
+        if (language === 'zh' || language === 'chs') return solar.getWeekInChinese();
+        if (language === 'bn') return ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'][week];
+        if (language === 'es') return ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][week];
+        return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][week];
+      })(),
     },
     lunar: {
       lunarYear: lunar.getYear(),
@@ -277,6 +281,31 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
       },
     },
   };
+
+  // Limit response for FREE users older than 14 days
+  if (user) {
+    const plan = user.subscription?.plan || 'FREE';
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+    if (plan === 'FREE' && user.createdAt < fourteenDaysAgo) {
+      response = {
+        ...response,
+        hiddenStems: null as any,
+        tenGods: null as any,
+        naYin: null as any,
+        zodiac: null as any,
+        constellation: null as any,
+        solarTerms: null as any,
+        luckPillars: null as any,
+        analysis: {
+          ...response.analysis,
+          godsAndStars: null as any,
+          twelveGrowthPhases: null as any,
+        },
+      };
+    }
+  }
 
   return translateObject(response, language || 'en');
 };
