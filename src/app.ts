@@ -1,31 +1,39 @@
 import express, { Application, Request, Response, NextFunction } from "express";
-import { BaziRoutes } from "./app/modules/bazi/bazi.routes";
-
-import { AuthRoutes } from "./app/modules/auth/auth.routes";
-import { ApiKeyRoutes } from "./app/modules/apiKey/apiKey.routes";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import corsOptions from "../src/config/cors";
 import { WebhookRoutes } from "./app/modules/webhook/webhook.routes";
-import { SubscriptionRoutes } from "./app/modules/subscription/subscription.routes";
+import router from "./app/routes";
+import config from "./config";
+import { formatUptime } from "./helpers/utils/formatUptime";
 
 const app: Application = express();
 
 // Webhook Routes (Must be before express.json)
-app.use("/api/v1/webhooks", WebhookRoutes);
+app.use("/api/v1/webhook", WebhookRoutes);
 
 // Middlewares
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Routes
-app.use("/api/v1/auth", AuthRoutes);
-app.use("/api/v1/api-keys", ApiKeyRoutes);
-app.use("/api/v1/subscriptions", SubscriptionRoutes);
-app.use("/api/v1/bazi", BaziRoutes);
+app.use("/api/v1", router);
 
 // Root Route
 app.get("/", (req: Request, res: Response) => {
   res.json({
     success: true,
     message: "BaZi API Server is running.",
+    environment: config.node_env,
+    port: config.port,
+    uptime: formatUptime(process.uptime()),
+    timestamp: new Date().toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }),
   });
 });
 

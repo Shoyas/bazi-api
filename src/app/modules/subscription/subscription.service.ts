@@ -28,10 +28,10 @@ const getCheckoutUrl = async (userId: string, plan: string) => {
   let variantId = '';
   switch (plan.toUpperCase()) {
     case 'YEARLY':
-      variantId = process.env.LEMONSQUEEZY_VARIANT_PREMIUM || ''; // Example mapping
+      variantId = process.env.LEMONSQUEEZY_VARIANT_YEARLY || '';
       break;
     case 'MONTHLY':
-      variantId = process.env.LEMONSQUEEZY_VARIANT_BASIC || ''; // Example mapping
+      variantId = process.env.LEMONSQUEEZY_VARIANT_MONTHLY || '';
       break;
     default:
       throw new AppError(httpStatus.BAD_REQUEST, 'Invalid plan selected');

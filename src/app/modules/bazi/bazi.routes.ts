@@ -4,7 +4,7 @@ import { baziValidationSchema } from './bazi.validation';
 import { BaziController } from './bazi.controller';
 
 import apiKeyGuard from '../../middlewares/apiKeyGuard';
-import { apiRateLimiter } from '../../middlewares/rateLimiter';
+import { apiRateLimiter, checkRateLimitBlock } from '../../middlewares/rateLimiter';
 import cacheResponse from '../../middlewares/cacheResponse';
 
 const router = express.Router();
@@ -12,6 +12,7 @@ const router = express.Router();
 router.post(
   '/calculate',
   apiKeyGuard(),
+  checkRateLimitBlock,
   apiRateLimiter,
   validateRequest(baziValidationSchema),
   cacheResponse(3600), // Cache for 1 hour

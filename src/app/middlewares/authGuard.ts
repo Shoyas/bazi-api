@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { AppError } from '../../errors/AppError';
 
-const authGuard = () => {
+const authGuard = (...requiredRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization?.split(' ')[1];
@@ -21,6 +21,10 @@ const authGuard = () => {
         ) as JwtPayload;
       } catch (error) {
         throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid token');
+      }
+
+      if (requiredRoles.length && !requiredRoles.includes(verifiedUser.role)) {
+        throw new AppError(httpStatus.FORBIDDEN, 'Forbidden access');
       }
 
       req.user = verifiedUser;

@@ -1,5 +1,6 @@
 export interface ILoginResponse {
   accessToken: string;
+  refreshToken: string;
   user: {
     id: string;
     name: string;
@@ -7,4 +8,7 @@ export interface ILoginResponse {
     role: string;
     isEmailVerified: boolean;
   };
+}
+export interface IRefreshTokenResponse {
+  accessToken: string;
 }

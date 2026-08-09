@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { emailQueue } from '../queues/email.queue';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -10,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async (to: string, subject: string, html: string) => {
+export const transportSendEmail = async (to: string, subject: string, html: string) => {
   try {
     const fromName = process.env.SMTP_NAME || 'BaZi API';
     const fromEmail = process.env.SMTP_EMAIL_FROM || process.env.SMTP_EMAIL || process.env.SMTP_USER;
@@ -25,6 +26,19 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
+    throw error;
+  }
+};
+
+export const sendEmail = async (to: string, subject: string, html: string) => {
+  try {
+    const job = await emailQueue.add('send-email', { to, subject, html }, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 1000 },
+    });
+    console.log(`[Email Queue] Added email job ${job.id} for ${to}`);
+  } catch (error) {
+    console.error('Error queuing email:', error);
     throw error;
   }
 };

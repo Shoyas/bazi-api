@@ -45,6 +45,22 @@ services:
     networks:
       - app-network
 
+  worker:
+    build: .
+    image: bazi-api
+    container_name: bazi_worker
+    restart: unless-stopped
+    command: ["node", "dist/worker.js"]
+    env_file: .env
+    environment:
+      REDIS_URL: "redis://redis:6379"
+      DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
   redis:
     image: redis:7-alpine
     container_name: bazi_redis

@@ -43,13 +43,25 @@ const processLemonSqueezyEvent = async (eventName: string, eventData: any) => {
       break;
 
     case 'subscription_cancelled':
+      if (userId) {
+        const endsAt = attributes.ends_at ? new Date(attributes.ends_at) : null;
+        await prisma.subscription.update({
+          where: { userId },
+          data: {
+            status: 'canceled',
+            ...(endsAt && { endDate: endsAt }),
+          },
+        });
+      }
+      break;
+
     case 'subscription_expired':
       if (userId) {
         await prisma.subscription.update({
           where: { userId },
           data: {
             plan: 'FREE',
-            status: 'canceled',
+            status: 'expired',
           },
         });
       }

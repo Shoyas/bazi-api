@@ -9,8 +9,14 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
 
   // 1. Validate and convert timezone
   let userTime;
+  
+  let adjustedBirthTime = birthTime;
+  if (!birthTime || birthTime === '' || birthTime === '00' || birthTime === '00:00') {
+    adjustedBirthTime = '12:00';
+  }
+
   try {
-    userTime = moment.tz(`${birthDate} ${birthTime || '12:00'}`, 'YYYY-MM-DD HH:mm', timezone);
+    userTime = moment.tz(`${birthDate} ${adjustedBirthTime}`, 'YYYY-MM-DD HH:mm', timezone);
     if (!userTime.isValid()) {
       throw new AppError(400, 'Invalid birth date or time');
     }
@@ -164,7 +170,7 @@ const calculateBazi = async (payload: IBaziRequest): Promise<IBaziResponseData> 
   const response: IBaziResponseData = {
     input: {
       birthDate,
-      birthTime: birthTime || '12:00', // ensure it defaults to 12:00
+      birthTime: adjustedBirthTime,
       gender,
       timezone,
       language,

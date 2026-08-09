@@ -1,12 +1,24 @@
 import app from "./app";
 import { seedSuperAdmin } from "./shared/seed";
-import { initCronJobs } from "./jobs/otpCleanup";
+import { cronQueue } from "./queues/cron.queue";
 
-const PORT = process.env.PORT || 3031;
+import config from "./config";
+
+const PORT = config.port || 3031;
 
 const startServer = async () => {
   await seedSuperAdmin();
-  initCronJobs();
+  
+  // Schedule BullMQ repeatable jobs
+  await cronQueue.add('otp-cleanup', {}, {
+    repeat: { pattern: '0 * * * *' } // Every hour
+  });
+  console.log('[BullMQ] Scheduled otp-cleanup repeatable job');
+
+  await cronQueue.add('subscription-cleanup', {}, {
+    repeat: { pattern: '0 0 * * *' } // Every midnight
+  });
+  console.log('[BullMQ] Scheduled subscription-cleanup repeatable job');
   
   const server = app.listen(PORT, () => {
     console.log(`Server is running on port: ${PORT}`);
