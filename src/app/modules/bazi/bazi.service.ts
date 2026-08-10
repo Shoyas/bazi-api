@@ -154,7 +154,8 @@ const calculateBazi = async (payload: IBaziRequest, user: any = null): Promise<I
   I18n.setLanguage('chs');
   
   // Re-fetch Yun and DaYun with output language
-  const yun = eightChar.getYun(gender === 'male' ? 1 : 0);
+  // Using sect = 2 (exact minutes) to prevent interval calculation bugs
+  const yun = eightChar.getYun(gender === 'male' ? 1 : 0, 2);
   const daYunArr = yun.getDaYun();
   
   // Filter out empty pillars (e.g. before major luck starts)
@@ -184,9 +185,7 @@ const calculateBazi = async (payload: IBaziRequest, user: any = null): Promise<I
       solarDateTime: solar.toYmdHms(),
       weekDay: (() => {
         const week = solar.getWeek();
-        if (language === 'zh' || language === 'chs') return solar.getWeekInChinese();
-        if (language === 'bn') return ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'][week];
-        if (language === 'es') return ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][week];
+        if (language === 'zh') return solar.getWeekInChinese();
         return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][week];
       })(),
     },
@@ -256,7 +255,7 @@ const calculateBazi = async (payload: IBaziRequest, user: any = null): Promise<I
     luckPillars: {
       direction: null, 
       forward: yun.isForward(),
-      startingAge: yun.getStartYear(),
+      startingAge: luckPillars.length > 0 ? luckPillars[0].age : yun.getStartYear(),
       startingDate: yun.getStartSolar().toYmd(),
       pillars: luckPillars,
     },
@@ -298,11 +297,11 @@ const calculateBazi = async (payload: IBaziRequest, user: any = null): Promise<I
         constellation: null as any,
         solarTerms: null as any,
         luckPillars: null as any,
-        analysis: {
+        analysis: response.analysis ? {
           ...response.analysis,
-          godsAndStars: null as any,
-          twelveGrowthPhases: null as any,
-        },
+          godsAndStars: null,
+          twelveGrowthPhases: null,
+        } : null,
       };
     }
   }
