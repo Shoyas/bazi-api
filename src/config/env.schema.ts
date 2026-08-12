@@ -36,6 +36,9 @@ export const envSchema = z.object({
   SMTP_EMAIL_FROM: z.string().optional(),
   SMTP_NAME: z.string().optional(),
 
+  // CORS
+  CORS_ORIGINS: z.string().optional(),
+
   // Admin
   ADMIN_EMAIL: z.string().email(),
   ADMIN_PASSWORD: z.string().min(6),

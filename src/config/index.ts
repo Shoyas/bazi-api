@@ -18,7 +18,7 @@ export default {
     expires_in: env.JWT_ACCESS_EXPIRES_IN,
     refresh_secret: env.JWT_REFRESH_SECRET,
     refresh_expires_in: env.JWT_REFRESH_EXPIRES_IN,
-    refresh_expires_in_seconds: env.JWT_REFRESH_EXPIRES_IN_SECONDS,
+    refresh_expires_in_seconds: parseInt(env.JWT_REFRESH_EXPIRES_IN_SECONDS, 10),
   },
 
   super_admin: {
@@ -51,5 +51,9 @@ export default {
 
   redis: {
     url: env.REDIS_URL,
+  },
+
+  cors: {
+    origins: env.CORS_ORIGINS,
   },
 };
