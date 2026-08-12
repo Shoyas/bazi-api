@@ -17,7 +17,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserDetails = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const result = await UserService.getUserDetails(id);
 
   sendResponse(res, {
@@ -29,7 +29,7 @@ const getUserDetails = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = req.params.id as string;
   // Requestor information from authGuard
   const requestor = req.user as { userId: string; role: string };
   const result = await UserService.updateUserStatus(id, req.body, requestor);

@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendEmail = void 0;
+exports.sendEmail = exports.transportSendEmail = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const email_queue_1 = require("../queues/email.queue");
 const transporter = nodemailer_1.default.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -14,7 +15,7 @@ const transporter = nodemailer_1.default.createTransport({
         pass: process.env.SMTP_PASS,
     },
 });
-const sendEmail = async (to, subject, html) => {
+const transportSendEmail = async (to, subject, html) => {
     try {
         const fromName = process.env.SMTP_NAME || 'BaZi API';
         const fromEmail = process.env.SMTP_EMAIL_FROM || process.env.SMTP_EMAIL || process.env.SMTP_USER;
@@ -29,6 +30,20 @@ const sendEmail = async (to, subject, html) => {
     }
     catch (error) {
         console.error('Error sending email:', error);
+        throw error;
+    }
+};
+exports.transportSendEmail = transportSendEmail;
+const sendEmail = async (to, subject, html) => {
+    try {
+        const job = await email_queue_1.emailQueue.add('send-email', { to, subject, html }, {
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 1000 },
+        });
+        console.log(`[Email Queue] Added email job ${job.id} for ${to}`);
+    }
+    catch (error) {
+        console.error('Error queuing email:', error);
         throw error;
     }
 };

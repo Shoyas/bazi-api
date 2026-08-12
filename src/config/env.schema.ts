@@ -19,8 +19,12 @@ export const envSchema = z.object({
   LEMONSQUEEZY_API_KEY: z.string().optional(),
   LEMONSQUEEZY_STORE_ID: z.string().optional(),
   LEMONSQUEEZY_WEBHOOK_SECRET: z.string().optional(),
-  LEMONSQUEEZY_VARIANT_MONTHLY: z.string().optional(),
-  LEMONSQUEEZY_VARIANT_YEARLY: z.string().optional(),
+  LEMONSQUEEZY_VARIANT_BASIC_MONTHLY: z.string().optional(),
+  LEMONSQUEEZY_VARIANT_BASIC_YEARLY: z.string().optional(),
+  LEMONSQUEEZY_VARIANT_PRO_MONTHLY: z.string().optional(),
+  LEMONSQUEEZY_VARIANT_PRO_YEARLY: z.string().optional(),
+  LEMONSQUEEZY_VARIANT_PREMIUM_MONTHLY: z.string().optional(),
+  LEMONSQUEEZY_VARIANT_PREMIUM_YEARLY: z.string().optional(),
   LEMONSQUEEZY_SUCCESS_URL: z.string().optional(),
   LEMONSQUEEZY_CANCEL_URL: z.string().optional(),
 
@@ -31,6 +35,9 @@ export const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   SMTP_EMAIL_FROM: z.string().optional(),
   SMTP_NAME: z.string().optional(),
+
+  // CORS
+  CORS_ORIGINS: z.string().optional(),
 
   // Admin
   ADMIN_EMAIL: z.string().email(),

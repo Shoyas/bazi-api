@@ -5,11 +5,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const seed_1 = require("./shared/seed");
-const otpCleanup_1 = require("./jobs/otpCleanup");
-const PORT = process.env.PORT || 3031;
+const cron_queue_1 = require("./queues/cron.queue");
+const config_1 = __importDefault(require("./config"));
+const PORT = config_1.default.port || 3031;
 const startServer = async () => {
     await (0, seed_1.seedSuperAdmin)();
-    (0, otpCleanup_1.initCronJobs)();
+    // Schedule BullMQ repeatable jobs
+    await cron_queue_1.cronQueue.add('otp-cleanup', {}, {
+        repeat: { pattern: '0 * * * *' } // Every hour
+    });
+    console.log('[BullMQ] Scheduled otp-cleanup repeatable job');
+    await cron_queue_1.cronQueue.add('subscription-cleanup', {}, {
+        repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+        jobId: 'daily-subscription-cleanup'
+    });
+    await cron_queue_1.cronQueue.add('apikey-cleanup', {}, {
+        repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+        jobId: 'daily-apikey-cleanup'
+    });
+    console.log('[BullMQ] Scheduled apikey-cleanup repeatable job');
+    await cron_queue_1.cronQueue.add('revoked-apikey-deletion', {}, {
+        repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+        jobId: 'daily-revoked-apikey-deletion'
+    });
+    console.log('[BullMQ] Scheduled revoked-apikey-deletion repeatable job');
+    console.log('[BullMQ] Scheduled subscription-cleanup repeatable job');
     const server = app_1.default.listen(PORT, () => {
         console.log(`Server is running on port: ${PORT}`);
     });

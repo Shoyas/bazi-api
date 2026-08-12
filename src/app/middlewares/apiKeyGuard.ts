@@ -44,6 +44,21 @@ const apiKeyGuard = () => {
 
       const plan = validKey.user.subscription?.plan || 'FREE';
 
+      // Auto-revoke FREE user API keys after 10 days
+      if (plan === 'FREE') {
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+        
+        if (validKey.createdAt < tenDaysAgo) {
+          // Deactivate it in DB
+          await prisma.apiKey.update({
+            where: { id: validKey.id },
+            data: { isActive: false }
+          });
+          throw new AppError(httpStatus.UNAUTHORIZED, 'Your API Key has expired (10 days limit for FREE users). Please generate a new one.');
+        }
+      }
+
       req.apiKeyUser = {
         userId: validKey.userId,
         plan,

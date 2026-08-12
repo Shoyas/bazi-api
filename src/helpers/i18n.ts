@@ -58,7 +58,8 @@ export const translateObject = (obj: any, lang: string): any => {
   if (typeof obj === 'object') {
     const translatedObj: any = {};
     for (const key in obj) {
-      translatedObj[key] = translateObject(obj[key], lang);
+      const translatedKey = typeof key === 'string' ? translate(key, lang) : key;
+      translatedObj[translatedKey] = translateObject(obj[key], lang);
     }
     return translatedObj;
   }

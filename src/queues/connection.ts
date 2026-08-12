@@ -1,11 +1,14 @@
 import Redis from 'ioredis';
 import config from '../config';
+import { ConnectionOptions } from 'bullmq';
 
 // BullMQ requires maxRetriesPerRequest: null
-export const connection = new Redis(config.redis.url || 'redis://localhost:6380', {
+const redisConnection = new Redis(config.redis.url || 'redis://localhost:6380', {
   maxRetriesPerRequest: null,
 });
 
-connection.on('error', (err) => {
+redisConnection.on('error', (err) => {
   console.error('[BullMQ Redis] Connection error:', err);
 });
+
+export const connection = redisConnection as unknown as ConnectionOptions;

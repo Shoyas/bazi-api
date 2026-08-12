@@ -15,6 +15,12 @@ enum Role {
 
 enum SubscriptionPlan {
   FREE
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum BillingCycle {
   MONTHLY
   YEARLY
 }
@@ -43,6 +49,7 @@ model Subscription {
   userId            String           @unique
   user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan              SubscriptionPlan @default(FREE)
+  billingCycle      BillingCycle?
   lemonSqueezyId    String?          // Customer ID in Lemon Squeezy
   lemonSubscriptionId String?        // Subscription ID in Lemon Squeezy
   status            String           @default("active") // active, past_due, canceled
@@ -92,4 +99,13 @@ model SystemSetting {
   value       String   // e.g., '15'
   description String?
   updatedAt   DateTime @updatedAt
+}
+
+model ArchivedUser {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  country   String?
+  createdAt DateTime @default(now())
+  deletedAt DateTime @default(now())
 }

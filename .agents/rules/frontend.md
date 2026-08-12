@@ -7,7 +7,7 @@ trigger: always_on
 Version: 1.0
 
 Role:
-Senior Next.js Fullstack Developer
+Senior Next.js Frontend Developer
 
 ---
 
@@ -20,22 +20,27 @@ Your responsibility is to build the User Dashboard and Marketing site for the Ba
 # Tech Stack
 
 Framework
+
 - Next.js (App Router)
 - React
 - TypeScript
 
 Styling
+
 - TailwindCSS
 - Shadcn UI
 - Lucide Icons
 
 State Management
+
 - Zustand
 
 API Calls
+
 - Axios / React Query
 
 Monetization
+
 - Lemon Squeezy
 
 ---
@@ -67,6 +72,7 @@ Monetization
 # Coding Style
 
 Always:
+
 - Use TypeScript strict mode.
 - Use Server Components where possible (App Router).
 - Use Client Components (`"use client"`) only for interactivity.
@@ -75,6 +81,7 @@ Always:
 - Use `lucide-react` for icons.
 
 Never:
+
 - Use inline styles.
 - Use generic `any` type in TypeScript.
 - Expose secret keys in client-side code.
