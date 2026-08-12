@@ -91,6 +91,25 @@ exports.cronWorker = new bullmq_1.Worker('cron-queue', async (job) => {
             throw error;
         }
     }
+    else if (job.name === 'revoked-apikey-deletion') {
+        try {
+            const deleted = await prisma_1.prisma.apiKey.deleteMany({
+                where: {
+                    isActive: false,
+                },
+            });
+            if (deleted.count > 0) {
+                console.log(`[Cron Worker] Revoked API Key deletion completed. Deleted ${deleted.count} revoked API keys.`);
+            }
+            else {
+                console.log('[Cron Worker] No revoked API keys found to delete.');
+            }
+        }
+        catch (error) {
+            console.error('[Cron Worker] Error during revoked API key deletion:', error);
+            throw error;
+        }
+    }
     else {
         console.warn(`[Cron Worker] Unknown job name: ${job.name}`);
     }

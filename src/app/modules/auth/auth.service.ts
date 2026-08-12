@@ -6,6 +6,7 @@ import { redisClient } from '../../../shared/redis';
 import { AppError } from '../../../errors/AppError';
 import { sendEmail } from '../../../helpers/mailer';
 import { ILoginResponse } from './auth.interface';
+import config from '../../../config';
 
 const registerUser = async (payload: any) => {
   const isExist = await prisma.user.findUnique({
@@ -125,20 +126,20 @@ const loginUser = async (payload: any): Promise<ILoginResponse> => {
 
   const accessToken = jwt.sign(
     { userId: user.id, role: user.role },
-    process.env.JWT_SECRET || 'secret',
-    { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '7d') as any }
+    config.jwt.secret,
+    { expiresIn: config.jwt.expires_in as any }
   );
 
   const refreshToken = jwt.sign(
     { userId: user.id, role: user.role },
-    process.env.JWT_REFRESH_SECRET || 'refresh_secret',
-    { expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '180d') as any }
+    config.jwt.refresh_secret,
+    { expiresIn: config.jwt.refresh_expires_in as any }
   );
 
   // Store refresh token in Redis set
   await redisClient.sadd(`user:${user.id}:refreshTokens`, refreshToken);
   // Set expiry on the individual refresh token string key
-  const refreshExpirySeconds = parseInt(process.env.JWT_REFRESH_EXPIRES_IN_SECONDS || '15552000', 10);
+  const refreshExpirySeconds = config.jwt.refresh_expires_in_seconds;
   await redisClient.setex(`rt:${refreshToken}`, refreshExpirySeconds, user.id);
   // Also add to set for easy revocation
   await redisClient.sadd(`user:${user.id}:refreshTokens`, `rt:${refreshToken}`);
@@ -159,7 +160,7 @@ const loginUser = async (payload: any): Promise<ILoginResponse> => {
 const refreshToken = async (token: string) => {
   let decoded: any;
   try {
-    decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || 'refresh_secret');
+    decoded = jwt.verify(token, config.jwt.refresh_secret);
   } catch (error) {
     throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid or expired refresh token');
   }
@@ -182,8 +183,8 @@ const refreshToken = async (token: string) => {
 
   const accessToken = jwt.sign(
     { userId: user.id, role: user.role },
-    process.env.JWT_SECRET || 'secret',
-    { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '7d') as any }
+    config.jwt.secret,
+    { expiresIn: config.jwt.expires_in as any }
   );
 
   return { accessToken };

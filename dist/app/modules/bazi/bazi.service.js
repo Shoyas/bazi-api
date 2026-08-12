@@ -8,6 +8,7 @@ const lunar_typescript_1 = require("lunar-typescript");
 const moment_timezone_1 = __importDefault(require("moment-timezone"));
 const AppError_1 = require("../../../errors/AppError");
 const i18n_1 = require("../../../helpers/i18n");
+const bazi_advanced_1 = require("./bazi.advanced");
 const calculateBazi = async (payload, user = null) => {
     const { birthDate, birthTime, gender, timezone = 'Asia/Shanghai', language = 'en' } = payload;
     // 1. Validate and convert timezone
@@ -79,6 +80,12 @@ const calculateBazi = async (payload, user = null) => {
     const dayZhi = eightChar.getDayZhi();
     const yearZhi = eightChar.getYearZhi();
     const allZhi = [eightChar.getYearZhi(), eightChar.getMonthZhi(), eightChar.getDayZhi(), eightChar.getTimeZhi()];
+    // Gods and Stars targets mapped to English
+    const zhiEnMap = {
+        '子': 'Zi (Rat)', '丑': 'Chou (Ox)', '寅': 'Yin (Tiger)', '卯': 'Mao (Rabbit)',
+        '辰': 'Chen (Dragon)', '巳': 'Si (Snake)', '午': 'Wu (Horse)', '未': 'Wei (Goat)',
+        '申': 'Shen (Monkey)', '酉': 'You (Rooster)', '戌': 'Xu (Dog)', '亥': 'Hai (Pig)'
+    };
     // Nobleman (天乙贵人)
     const noblemanMap = {
         '甲': ['丑', '未'], '戊': ['丑', '未'], '庚': ['丑', '未'],
@@ -87,9 +94,8 @@ const calculateBazi = async (payload, user = null) => {
         '壬': ['卯', '巳'], '癸': ['卯', '巳'],
         '辛': ['寅', '午']
     };
-    const noblemanTargets = [...(noblemanMap[dayGan] || []), ...(noblemanMap[yearGan] || [])];
-    const noblemanMatches = [...new Set(allZhi.filter(zhi => noblemanTargets.includes(zhi)))];
-    const noblemanStar = noblemanMatches.length > 0 ? noblemanMatches.join(', ') : null;
+    const noblemanTargets = [...new Set([...(noblemanMap[dayGan] || []), ...(noblemanMap[yearGan] || [])])];
+    const noblemanStar = noblemanTargets.length > 0 ? noblemanTargets.map(z => zhiEnMap[z]) : null;
     // Peach Blossom (桃花)
     const peachMap = {
         '申': '酉', '子': '酉', '辰': '酉',
@@ -97,9 +103,8 @@ const calculateBazi = async (payload, user = null) => {
         '寅': '卯', '午': '卯', '戌': '卯',
         '巳': '午', '酉': '午', '丑': '午'
     };
-    const peachTargets = [peachMap[dayZhi], peachMap[yearZhi]].filter(Boolean);
-    const peachBlossomMatches = [...new Set(allZhi.filter(zhi => peachTargets.includes(zhi)))];
-    const peachBlossomStar = peachBlossomMatches.length > 0 ? peachBlossomMatches.join(', ') : null;
+    const peachTargets = [...new Set([peachMap[dayZhi], peachMap[yearZhi]].filter(Boolean))];
+    const peachBlossomStar = peachTargets.length > 0 ? peachTargets.map(z => zhiEnMap[z]) : null;
     // Travel Horse (驿马)
     const horseMap = {
         '申': '寅', '子': '寅', '辰': '寅',
@@ -107,9 +112,8 @@ const calculateBazi = async (payload, user = null) => {
         '寅': '申', '午': '申', '戌': '申',
         '巳': '亥', '酉': '亥', '丑': '亥'
     };
-    const horseTargets = [horseMap[dayZhi], horseMap[yearZhi]].filter(Boolean);
-    const travelHorseMatches = [...new Set(allZhi.filter(zhi => horseTargets.includes(zhi)))];
-    const travelHorseStar = travelHorseMatches.length > 0 ? travelHorseMatches.join(', ') : null;
+    const horseTargets = [...new Set([horseMap[dayZhi], horseMap[yearZhi]].filter(Boolean))];
+    const travelHorseStar = horseTargets.length > 0 ? horseTargets.map(z => zhiEnMap[z]) : null;
     // General Star (将星)
     const generalMap = {
         '申': '子', '子': '子', '辰': '子',
@@ -117,34 +121,57 @@ const calculateBazi = async (payload, user = null) => {
         '寅': '午', '午': '午', '戌': '午',
         '巳': '酉', '酉': '酉', '丑': '酉'
     };
-    const generalTargets = [generalMap[dayZhi], generalMap[yearZhi]].filter(Boolean);
-    const generalStarMatches = [...new Set(allZhi.filter(zhi => generalTargets.includes(zhi)))];
-    const generalStarResult = generalStarMatches.length > 0 ? generalStarMatches.join(', ') : null;
+    const generalTargets = [...new Set([generalMap[dayZhi], generalMap[yearZhi]].filter(Boolean))];
+    const generalStarResult = generalTargets.length > 0 ? generalTargets.map(z => zhiEnMap[z]) : null;
     // Academic Star (文昌)
     const academicMap = {
         '甲': '巳', '乙': '午', '丙': '申', '戊': '申',
         '丁': '酉', '己': '酉', '庚': '亥', '辛': '子',
         '壬': '寅', '癸': '卯'
     };
-    const academicTargets = [academicMap[dayGan], academicMap[yearGan]].filter(Boolean);
-    const academicStarMatches = [...new Set(allZhi.filter(zhi => academicTargets.includes(zhi)))];
-    const academicStarResult = academicStarMatches.length > 0 ? academicStarMatches.join(', ') : null;
+    const academicTargets = [...new Set([academicMap[dayGan], academicMap[yearGan]].filter(Boolean))];
+    const academicStarResult = academicTargets.length > 0 ? academicTargets.map(z => zhiEnMap[z]) : null;
     // ==========================================
     // PHASE 2: OUTPUT GENERATION (USER LANGUAGE)
     // ==========================================
     // Set language to Chinese. The translateObject will translate it to the user's language based on dictionaries.
     lunar_typescript_1.I18n.setLanguage('chs');
     // Re-fetch Yun and DaYun with output language
-    const yun = eightChar.getYun(gender === 'male' ? 1 : 0);
+    // Using sect = 1 (traditional days calculation) to prevent timezone & interval calculation bugs that occur with sect = 2
+    const yun = eightChar.getYun(gender === 'male' ? 1 : 0, 1);
     const daYunArr = yun.getDaYun();
     // Filter out empty pillars (e.g. before major luck starts)
     const luckPillars = daYunArr
         .filter((daYun) => daYun.getGanZhi() !== '')
-        .map((daYun) => ({
-        age: daYun.getStartAge(),
-        pillar: daYun.getGanZhi(),
-    }));
+        .map((daYun) => {
+        const liuNianArr = daYun.getLiuNian();
+        const annualLuck = liuNianArr.map((ln) => ({
+            year: ln.getYear(),
+            age: ln.getAge(),
+            pillar: ln.getGanZhi(),
+        }));
+        return {
+            age: daYun.getStartAge(),
+            pillar: daYun.getGanZhi(),
+            annualLuck,
+        };
+    });
+    const minorLuck = [];
+    if (daYunArr.length > 0) {
+        const xiaoYunArr = daYunArr[0].getXiaoYun();
+        xiaoYunArr.forEach((xy) => {
+            if (xy.getAge() > 0 && xy.getAge() < (luckPillars.length > 0 ? luckPillars[0].age : 11)) {
+                minorLuck.push({
+                    year: xy.getYear(),
+                    age: xy.getAge(),
+                    pillar: xy.getGanZhi(),
+                });
+            }
+        });
+    }
     const lunarYearObj = lunar_typescript_1.LunarYear.fromYear(lunar.getYear());
+    // Advanced Logic Calculation
+    const advData = (0, bazi_advanced_1.advancedBaziLogic)(eightChar, rawWuXingStats, language);
     let response = {
         input: {
             birthDate,
@@ -162,12 +189,8 @@ const calculateBazi = async (payload, user = null) => {
             solarDateTime: solar.toYmdHms(),
             weekDay: (() => {
                 const week = solar.getWeek();
-                if (language === 'zh' || language === 'chs')
+                if (language === 'zh')
                     return solar.getWeekInChinese();
-                if (language === 'bn')
-                    return ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'][week];
-                if (language === 'es')
-                    return ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][week];
                 return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][week];
             })(),
         },
@@ -183,6 +206,11 @@ const calculateBazi = async (payload, user = null) => {
             monthPillar: eightChar.getMonth(),
             dayPillar: eightChar.getDay(),
             hourPillar: eightChar.getTime(),
+        },
+        advancedPillars: {
+            taiYuan: eightChar.getTaiYuan(),
+            mingGong: eightChar.getMingGong(),
+            shenGong: eightChar.getShenGong(),
         },
         heavenlyStems: {
             yearStem: eightChar.getYearGan(),
@@ -237,15 +265,20 @@ const calculateBazi = async (payload, user = null) => {
         luckPillars: {
             direction: null,
             forward: yun.isForward(),
-            startingAge: yun.getStartYear(),
+            startingAge: luckPillars.length > 0 ? luckPillars[0].age : yun.getStartYear(),
             startingDate: yun.getStartSolar().toYmd(),
             pillars: luckPillars,
+            minorLuck,
         },
         analysis: {
-            strongestElement: null,
-            weakestElement: null,
+            dayMasterStrength: advData.dayMasterStrength,
+            strongestElement: advData.strongestElement,
+            weakestElement: advData.weakestElement,
             missingElements: Object.keys(rawWuXingStats).filter((k) => rawWuXingStats[k] === 0),
-            balanced: null,
+            balanced: advData.balanced,
+            favorableElements: advData.favorableElements,
+            unfavorableElements: advData.unfavorableElements,
+            yongShen: advData.yongShen,
             voidBranch: eightChar.getDayXunKong(),
             twelveGrowthPhases: [
                 eightChar.getYearDiShi(),
@@ -260,7 +293,15 @@ const calculateBazi = async (payload, user = null) => {
                 travelHorse: travelHorseStar,
                 generalStar: generalStarResult,
             },
+            interactions: advData.interactions,
         },
+        lifePredictions: advData.lifePredictions,
+        currentAnnualLuck: {
+            currentYear: new Date().getFullYear(),
+            annualPillar: lunarYearObj.getGanZhi(), // Roughly current year pillar
+            overallFortune: advData.dayMasterStrength === 'Strong' ? 'Good' : 'Average',
+            keyEvents: ['Career Advancements', 'Personal Growth'],
+        }
     };
     // Limit response for FREE users older than 14 days
     if (user) {
@@ -277,11 +318,14 @@ const calculateBazi = async (payload, user = null) => {
                 constellation: null,
                 solarTerms: null,
                 luckPillars: null,
-                analysis: {
+                analysis: response.analysis ? {
                     ...response.analysis,
                     godsAndStars: null,
                     twelveGrowthPhases: null,
-                },
+                    interactions: null,
+                } : null,
+                lifePredictions: null,
+                currentAnnualLuck: null,
             };
         }
     }

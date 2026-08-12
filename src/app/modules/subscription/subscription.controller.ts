@@ -6,9 +6,9 @@ import { SubscriptionService } from './subscription.service';
 
 const getCheckoutUrl = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
-  const { plan } = req.body;
+  const { plan, billingCycle } = req.body;
 
-  const result = await SubscriptionService.getCheckoutUrl(userId, plan);
+  const result = await SubscriptionService.getCheckoutUrl(userId, plan, billingCycle);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

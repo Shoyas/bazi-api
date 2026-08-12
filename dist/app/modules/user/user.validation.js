@@ -5,14 +5,14 @@ const zod_1 = require("zod");
 const updateUserStatusZodSchema = zod_1.z.object({
     body: zod_1.z.object({
         status: zod_1.z.enum(['active', 'blocked'], {
-            required_error: 'Status is required',
+            message: 'Status is required',
         }),
     }),
 });
 const bulkSoftDeleteZodSchema = zod_1.z.object({
     body: zod_1.z.object({
         userIds: zod_1.z.array(zod_1.z.string({
-            required_error: 'User IDs array is required',
+            message: 'User IDs array is required',
         })).min(1, 'At least one User ID is required'),
     }),
 });

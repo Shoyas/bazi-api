@@ -7,9 +7,10 @@ exports.connection = void 0;
 const ioredis_1 = __importDefault(require("ioredis"));
 const config_1 = __importDefault(require("../config"));
 // BullMQ requires maxRetriesPerRequest: null
-exports.connection = new ioredis_1.default(config_1.default.redis.url || 'redis://localhost:6380', {
+const redisConnection = new ioredis_1.default(config_1.default.redis.url || 'redis://localhost:6380', {
     maxRetriesPerRequest: null,
 });
-exports.connection.on('error', (err) => {
+redisConnection.on('error', (err) => {
     console.error('[BullMQ Redis] Connection error:', err);
 });
+exports.connection = redisConnection;

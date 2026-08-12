@@ -6,6 +6,9 @@ const sendResponse = (res, data) => {
         message: data.message || null,
         data: data.data || null,
     };
+    if (data.meta) {
+        responseData.meta = data.meta;
+    }
     res.status(data.statusCode).json(responseData);
 };
 exports.default = sendResponse;

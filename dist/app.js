@@ -45,10 +45,18 @@ app.use((req, res) => {
 });
 // Global Error Handler
 app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
+    let statusCode = err.statusCode || 500;
+    let message = err.message || "Something went wrong!";
+    // Handle Zod Validation Errors
+    if (err.name === 'ZodError') {
+        statusCode = 400;
+        message = "Validation Error";
+        // To show detailed zod errors in dev, we could extract issues, but for now just returning the message is fine.
+        message = err.issues ? err.issues.map((i) => i.message).join(', ') : message;
+    }
     res.status(statusCode).json({
         success: false,
-        message: err.message || "Something went wrong!",
+        message,
     });
 });
 exports.default = app;

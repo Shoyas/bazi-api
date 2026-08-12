@@ -4,6 +4,7 @@ import { ApiKeyRoutes } from '../modules/apiKey/apiKey.routes';
 import { SubscriptionRoutes } from '../modules/subscription/subscription.routes';
 import { BaziRoutes } from '../modules/bazi/bazi.routes';
 import { UserRoutes } from '../modules/user/user.routes';
+import { SystemSettingRoutes } from '../modules/systemSetting/systemSetting.routes';
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: '/users',
     route: UserRoutes,
+  },
+  {
+    path: '/system-settings',
+    route: SystemSettingRoutes,
   },
 ];
 
