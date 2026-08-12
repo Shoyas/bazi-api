@@ -4,6 +4,14 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../../../shared/prisma';
 import { AppError } from '../../../errors/AppError';
 
+/** Per-plan API key limits matching the pricing tier */
+const PLAN_KEY_LIMITS: Record<string, number> = {
+  FREE: 1,
+  BASIC: 3,
+  PRO: 10,
+  PREMIUM: Infinity,
+};
+
 const generateApiKey = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -18,19 +26,13 @@ const generateApiKey = async (userId: string) => {
     where: { userId, isActive: true },
   });
 
-  const plan = user.subscription?.plan || 'FREE';
+  const plan = user.subscription?.plan ?? 'FREE';
+  const limit = PLAN_KEY_LIMITS[plan] ?? 1;
 
-  if (plan === 'FREE' && activeKeysCount >= 1) {
+  if (activeKeysCount >= limit) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'Free users can only have 1 active API Key at a time.'
-    );
-  }
-
-  if ((plan === 'MONTHLY' || plan === 'YEARLY') && activeKeysCount >= 20) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Subscribed users can have a maximum of 20 active API Keys at a time.'
+      `Your ${plan} plan allows a maximum of ${limit === Infinity ? 'unlimited' : limit} active API Key(s). Please revoke an existing key or upgrade your plan.`
     );
   }
 

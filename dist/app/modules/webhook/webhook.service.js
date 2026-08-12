@@ -13,28 +13,66 @@ const processLemonSqueezyEvent = async (eventName, payload) => {
         case 'subscription_updated':
             if (userId) {
                 let plan = 'FREE';
+                let billingCycle = null;
                 const variantId = attributes.variant_id?.toString();
                 // Exact match with env variables is the safest way
-                if (variantId === process.env.LEMONSQUEEZY_VARIANT_YEARLY) {
-                    plan = 'YEARLY';
+                if (variantId === process.env.LEMONSQUEEZY_VARIANT_BASIC_MONTHLY) {
+                    plan = 'BASIC';
+                    billingCycle = 'MONTHLY';
                 }
-                else if (variantId === process.env.LEMONSQUEEZY_VARIANT_MONTHLY) {
-                    plan = 'MONTHLY';
+                else if (variantId === process.env.LEMONSQUEEZY_VARIANT_BASIC_YEARLY) {
+                    plan = 'BASIC';
+                    billingCycle = 'YEARLY';
+                }
+                else if (variantId === process.env.LEMONSQUEEZY_VARIANT_PRO_MONTHLY) {
+                    plan = 'PRO';
+                    billingCycle = 'MONTHLY';
+                }
+                else if (variantId === process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY) {
+                    plan = 'PRO';
+                    billingCycle = 'YEARLY';
+                }
+                else if (variantId === process.env.LEMONSQUEEZY_VARIANT_PREMIUM_MONTHLY) {
+                    plan = 'PREMIUM';
+                    billingCycle = 'MONTHLY';
+                }
+                else if (variantId === process.env.LEMONSQUEEZY_VARIANT_PREMIUM_YEARLY) {
+                    plan = 'PREMIUM';
+                    billingCycle = 'YEARLY';
                 }
                 else {
                     // Fallback to product name check if for some reason variant_id fails
                     const productName = attributes.product_name?.toLowerCase() || '';
-                    if (productName.includes('yearly')) {
-                        plan = 'YEARLY';
+                    if (productName.includes('basic') && productName.includes('yearly')) {
+                        plan = 'BASIC';
+                        billingCycle = 'YEARLY';
                     }
-                    else if (productName.includes('monthly')) {
-                        plan = 'MONTHLY';
+                    else if (productName.includes('basic') && productName.includes('monthly')) {
+                        plan = 'BASIC';
+                        billingCycle = 'MONTHLY';
+                    }
+                    else if (productName.includes('pro') && productName.includes('yearly')) {
+                        plan = 'PRO';
+                        billingCycle = 'YEARLY';
+                    }
+                    else if (productName.includes('pro') && productName.includes('monthly')) {
+                        plan = 'PRO';
+                        billingCycle = 'MONTHLY';
+                    }
+                    else if (productName.includes('premium') && productName.includes('yearly')) {
+                        plan = 'PREMIUM';
+                        billingCycle = 'YEARLY';
+                    }
+                    else if (productName.includes('premium') && productName.includes('monthly')) {
+                        plan = 'PREMIUM';
+                        billingCycle = 'MONTHLY';
                     }
                 }
                 await prisma_1.prisma.subscription.upsert({
                     where: { userId },
                     update: {
                         plan,
+                        billingCycle,
                         lemonSqueezyId: attributes.customer_id.toString(),
                         lemonSubscriptionId: subscriptionId,
                         status: attributes.status,
@@ -43,6 +81,7 @@ const processLemonSqueezyEvent = async (eventName, payload) => {
                     create: {
                         userId,
                         plan,
+                        billingCycle,
                         lemonSqueezyId: attributes.customer_id.toString(),
                         lemonSubscriptionId: subscriptionId,
                         status: attributes.status,

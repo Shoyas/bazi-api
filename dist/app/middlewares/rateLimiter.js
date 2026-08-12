@@ -7,13 +7,15 @@ const redis_1 = require("../../shared/redis");
 const getSystemSetting_1 = require("../../shared/getSystemSetting");
 const getLimitByPlan = (plan) => {
     switch (plan) {
-        case 'YEARLY':
-            return 1000; // 1000 req per min
-        case 'MONTHLY':
-            return 500; // 500 req per min
+        case 'PREMIUM':
+            return 1000;
+        case 'PRO':
+            return 500;
+        case 'BASIC':
+            return 300;
         case 'FREE':
         default:
-            return 10; // 10 req per min
+            return 30;
     }
 };
 const getUserIdOrIp = (req) => {
