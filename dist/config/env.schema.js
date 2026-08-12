@@ -18,8 +18,12 @@ exports.envSchema = zod_1.z.object({
     LEMONSQUEEZY_API_KEY: zod_1.z.string().optional(),
     LEMONSQUEEZY_STORE_ID: zod_1.z.string().optional(),
     LEMONSQUEEZY_WEBHOOK_SECRET: zod_1.z.string().optional(),
-    LEMONSQUEEZY_VARIANT_MONTHLY: zod_1.z.string().optional(),
-    LEMONSQUEEZY_VARIANT_YEARLY: zod_1.z.string().optional(),
+    LEMONSQUEEZY_VARIANT_BASIC_MONTHLY: zod_1.z.string().optional(),
+    LEMONSQUEEZY_VARIANT_BASIC_YEARLY: zod_1.z.string().optional(),
+    LEMONSQUEEZY_VARIANT_PRO_MONTHLY: zod_1.z.string().optional(),
+    LEMONSQUEEZY_VARIANT_PRO_YEARLY: zod_1.z.string().optional(),
+    LEMONSQUEEZY_VARIANT_PREMIUM_MONTHLY: zod_1.z.string().optional(),
+    LEMONSQUEEZY_VARIANT_PREMIUM_YEARLY: zod_1.z.string().optional(),
     LEMONSQUEEZY_SUCCESS_URL: zod_1.z.string().optional(),
     LEMONSQUEEZY_CANCEL_URL: zod_1.z.string().optional(),
     // SMTP (from existing or provided)
@@ -29,6 +33,8 @@ exports.envSchema = zod_1.z.object({
     SMTP_PASS: zod_1.z.string().optional(),
     SMTP_EMAIL_FROM: zod_1.z.string().optional(),
     SMTP_NAME: zod_1.z.string().optional(),
+    // CORS
+    CORS_ORIGINS: zod_1.z.string().optional(),
     // Admin
     ADMIN_EMAIL: zod_1.z.string().email(),
     ADMIN_PASSWORD: zod_1.z.string().min(6),

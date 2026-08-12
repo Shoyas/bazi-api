@@ -11,6 +11,7 @@ const prisma_1 = require("../../../shared/prisma");
 const redis_1 = require("../../../shared/redis");
 const AppError_1 = require("../../../errors/AppError");
 const mailer_1 = require("../../../helpers/mailer");
+const config_1 = __importDefault(require("../../../config"));
 const registerUser = async (payload) => {
     const isExist = await prisma_1.prisma.user.findUnique({
         where: { email: payload.email },
@@ -105,12 +106,12 @@ const loginUser = async (payload) => {
     if (!isPasswordMatched) {
         throw new AppError_1.AppError(http_status_1.default.UNAUTHORIZED, 'Invalid credentials');
     }
-    const accessToken = jsonwebtoken_1.default.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '7d') });
-    const refreshToken = jsonwebtoken_1.default.sign({ userId: user.id, role: user.role }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', { expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '180d') });
+    const accessToken = jsonwebtoken_1.default.sign({ userId: user.id, role: user.role }, config_1.default.jwt.secret, { expiresIn: config_1.default.jwt.expires_in });
+    const refreshToken = jsonwebtoken_1.default.sign({ userId: user.id, role: user.role }, config_1.default.jwt.refresh_secret, { expiresIn: config_1.default.jwt.refresh_expires_in });
     // Store refresh token in Redis set
     await redis_1.redisClient.sadd(`user:${user.id}:refreshTokens`, refreshToken);
     // Set expiry on the individual refresh token string key
-    const refreshExpirySeconds = parseInt(process.env.JWT_REFRESH_EXPIRES_IN_SECONDS || '15552000', 10);
+    const refreshExpirySeconds = config_1.default.jwt.refresh_expires_in_seconds;
     await redis_1.redisClient.setex(`rt:${refreshToken}`, refreshExpirySeconds, user.id);
     // Also add to set for easy revocation
     await redis_1.redisClient.sadd(`user:${user.id}:refreshTokens`, `rt:${refreshToken}`);
@@ -129,7 +130,7 @@ const loginUser = async (payload) => {
 const refreshToken = async (token) => {
     let decoded;
     try {
-        decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_REFRESH_SECRET || 'refresh_secret');
+        decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt.refresh_secret);
     }
     catch (error) {
         throw new AppError_1.AppError(http_status_1.default.UNAUTHORIZED, 'Invalid or expired refresh token');
@@ -146,7 +147,7 @@ const refreshToken = async (token) => {
     if (!user) {
         throw new AppError_1.AppError(http_status_1.default.NOT_FOUND, 'User not found');
     }
-    const accessToken = jsonwebtoken_1.default.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '7d') });
+    const accessToken = jsonwebtoken_1.default.sign({ userId: user.id, role: user.role }, config_1.default.jwt.secret, { expiresIn: config_1.default.jwt.expires_in });
     return { accessToken };
 };
 const logout = async (token, userId) => {
