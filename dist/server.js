@@ -29,6 +29,11 @@ const startServer = async () => {
         jobId: 'daily-revoked-apikey-deletion'
     });
     console.log('[BullMQ] Scheduled revoked-apikey-deletion repeatable job');
+    await cron_queue_1.cronQueue.add('free-user-cleanup', {}, {
+        repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+        jobId: 'daily-free-user-cleanup'
+    });
+    console.log('[BullMQ] Scheduled free-user-cleanup repeatable job');
     console.log('[BullMQ] Scheduled subscription-cleanup repeatable job');
     const server = app_1.default.listen(PORT, () => {
         console.log(`Server is running on port: ${PORT}`);

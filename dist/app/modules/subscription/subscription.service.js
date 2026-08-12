@@ -13,7 +13,7 @@ const initLemonSqueezy = () => {
         apiKey: process.env.LEMONSQUEEZY_API_KEY || '',
     });
 };
-const getCheckoutUrl = async (userId, plan) => {
+const getCheckoutUrl = async (userId, plan, billingCycle) => {
     initLemonSqueezy();
     const user = await prisma_1.prisma.user.findUnique({
         where: { id: userId },
@@ -25,16 +25,32 @@ const getCheckoutUrl = async (userId, plan) => {
     if (!storeId) {
         throw new AppError_1.AppError(http_status_1.default.INTERNAL_SERVER_ERROR, 'Store ID not configured');
     }
+    if (!plan || !billingCycle) {
+        throw new AppError_1.AppError(http_status_1.default.BAD_REQUEST, 'Plan and Billing Cycle are required');
+    }
+    const planKey = `${plan.toUpperCase()}_${billingCycle.toUpperCase()}`;
     let variantId = '';
-    switch (plan.toUpperCase()) {
-        case 'YEARLY':
-            variantId = process.env.LEMONSQUEEZY_VARIANT_YEARLY || '';
+    switch (planKey) {
+        case 'BASIC_MONTHLY':
+            variantId = process.env.LEMONSQUEEZY_VARIANT_BASIC_MONTHLY || '';
             break;
-        case 'MONTHLY':
-            variantId = process.env.LEMONSQUEEZY_VARIANT_MONTHLY || '';
+        case 'BASIC_YEARLY':
+            variantId = process.env.LEMONSQUEEZY_VARIANT_BASIC_YEARLY || '';
+            break;
+        case 'PRO_MONTHLY':
+            variantId = process.env.LEMONSQUEEZY_VARIANT_PRO_MONTHLY || '';
+            break;
+        case 'PRO_YEARLY':
+            variantId = process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY || '';
+            break;
+        case 'PREMIUM_MONTHLY':
+            variantId = process.env.LEMONSQUEEZY_VARIANT_PREMIUM_MONTHLY || '';
+            break;
+        case 'PREMIUM_YEARLY':
+            variantId = process.env.LEMONSQUEEZY_VARIANT_PREMIUM_YEARLY || '';
             break;
         default:
-            throw new AppError_1.AppError(http_status_1.default.BAD_REQUEST, 'Invalid plan selected');
+            throw new AppError_1.AppError(http_status_1.default.BAD_REQUEST, 'Invalid plan or billing cycle selected');
     }
     if (!variantId) {
         throw new AppError_1.AppError(http_status_1.default.INTERNAL_SERVER_ERROR, 'Variant ID not configured');

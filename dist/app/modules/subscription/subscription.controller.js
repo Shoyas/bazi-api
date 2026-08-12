@@ -10,8 +10,8 @@ const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const subscription_service_1 = require("./subscription.service");
 const getCheckoutUrl = (0, catchAsync_1.default)(async (req, res) => {
     const userId = req.user?.userId;
-    const { plan } = req.body;
-    const result = await subscription_service_1.SubscriptionService.getCheckoutUrl(userId, plan);
+    const { plan, billingCycle } = req.body;
+    const result = await subscription_service_1.SubscriptionService.getCheckoutUrl(userId, plan, billingCycle);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

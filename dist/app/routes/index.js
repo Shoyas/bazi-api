@@ -9,6 +9,7 @@ const apiKey_routes_1 = require("../modules/apiKey/apiKey.routes");
 const subscription_routes_1 = require("../modules/subscription/subscription.routes");
 const bazi_routes_1 = require("../modules/bazi/bazi.routes");
 const user_routes_1 = require("../modules/user/user.routes");
+const systemSetting_routes_1 = require("../modules/systemSetting/systemSetting.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -30,6 +31,10 @@ const moduleRoutes = [
     {
         path: '/users',
         route: user_routes_1.UserRoutes,
+    },
+    {
+        path: '/system-settings',
+        route: systemSetting_routes_1.SystemSettingRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
