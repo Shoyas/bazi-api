@@ -1,6 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { connection } from '../queues/connection';
 import { prisma } from '../shared/prisma';
+import { getSystemSetting } from '../shared/getSystemSetting';
 
 export const cronWorker = new Worker(
   'cron-queue',
@@ -55,15 +56,19 @@ export const cronWorker = new Worker(
       }
     } else if (job.name === 'apikey-cleanup') {
       try {
-        const tenDaysAgo = new Date();
-        tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+        // Fetch dynamic free API key expiration days from System Settings (default: 30 days)
+        const expiryDaysStr = await getSystemSetting('free_api_key_expiry_days', '30');
+        const expiryDays = parseInt(expiryDaysStr, 10) || 30;
 
-        // Find all active API keys that are older than 10 days
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - expiryDays);
+
+        // Find all active API keys that are older than expiryDays
         // but only for FREE users.
         const expiredKeys = await prisma.apiKey.findMany({
           where: {
             isActive: true,
-            createdAt: { lt: tenDaysAgo },
+            createdAt: { lt: cutoffDate },
             user: {
               OR: [
                 { subscription: null },
@@ -82,9 +87,9 @@ export const cronWorker = new Worker(
               isActive: false,
             },
           });
-          console.log(`[Cron Worker] API Key cleanup completed. Revoked ${updated.count} expired FREE API keys.`);
+          console.log(`[Cron Worker] API Key cleanup completed (${expiryDays} days threshold). Revoked ${updated.count} expired FREE API keys.`);
         } else {
-          console.log('[Cron Worker] No expired FREE API keys found.');
+          console.log(`[Cron Worker] No expired FREE API keys found (threshold: ${expiryDays} days).`);
         }
       } catch (error) {
         console.error('[Cron Worker] Error during API key cleanup:', error);
@@ -108,14 +113,20 @@ export const cronWorker = new Worker(
       }
     } else if (job.name === 'free-user-cleanup') {
       try {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        // Fetch dynamic retention days from System Settings (default: 180 days / 6 months)
+        const retentionDaysStr = await getSystemSetting('free_user_retention_days', '180');
+        const retentionDays = parseInt(retentionDaysStr, 10) || 180;
 
-        // Find users with FREE plan older than 30 days
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+        // Find active FREE users whose account was created more than retentionDays ago
         const expiredFreeUsers = await prisma.user.findMany({
           where: {
             role: 'USER',
-            createdAt: { lt: thirtyDaysAgo },
+            status: { not: 'blocked' },
+            isDeleted: false,
+            createdAt: { lt: cutoffDate },
             OR: [
               { subscription: null },
               { subscription: { plan: 'FREE' } },
@@ -124,28 +135,34 @@ export const cronWorker = new Worker(
         });
 
         if (expiredFreeUsers.length > 0) {
-          // Archive their info
-          await prisma.archivedUser.createMany({
-            data: expiredFreeUsers.map(user => ({
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              country: user.country,
-              createdAt: user.createdAt,
-            })),
-            skipDuplicates: true,
-          });
+          const userIds = expiredFreeUsers.map((u) => u.id);
 
-          // Delete them from User table (this cascades keys/logs/subscriptions)
-          const deleted = await prisma.user.deleteMany({
+          // Disable/Block their account status
+          const updatedUsers = await prisma.user.updateMany({
             where: {
-              id: { in: expiredFreeUsers.map(u => u.id) },
+              id: { in: userIds },
+            },
+            data: {
+              status: 'blocked',
             },
           });
 
-          console.log(`[Cron Worker] Free user cleanup completed. Archived and deleted ${deleted.count} users.`);
+          // Deactivate all active API keys of these disabled users
+          const updatedKeys = await prisma.apiKey.updateMany({
+            where: {
+              userId: { in: userIds },
+              isActive: true,
+            },
+            data: {
+              isActive: false,
+            },
+          });
+
+          console.log(
+            `[Cron Worker] Free user cleanup completed (${retentionDays} days threshold). Disabled ${updatedUsers.count} user accounts and deactivated ${updatedKeys.count} API keys.`
+          );
         } else {
-          console.log('[Cron Worker] No expired FREE users found for cleanup.');
+          console.log(`[Cron Worker] No expired FREE users found to disable (threshold: ${retentionDays} days).`);
         }
       } catch (error) {
         console.error('[Cron Worker] Error during free user cleanup:', error);

@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../shared/prisma';
 import { AppError } from '../../errors/AppError';
+import { getSystemSetting } from '../../shared/getSystemSetting';
 
 const apiKeyGuard = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -42,20 +43,27 @@ const apiKeyGuard = () => {
         throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid API Key');
       }
 
+      if (validKey.user.status === 'blocked' || validKey.user.isDeleted) {
+        throw new AppError(httpStatus.FORBIDDEN, 'User account is disabled or blocked. Please contact support.');
+      }
+
       const plan = validKey.user.subscription?.plan || 'FREE';
 
-      // Auto-revoke FREE user API keys after 10 days
+      // Auto-revoke FREE user API keys after dynamic expiry days
       if (plan === 'FREE') {
-        const tenDaysAgo = new Date();
-        tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+        const expiryDaysStr = await getSystemSetting('free_api_key_expiry_days', '30');
+        const expiryDays = parseInt(expiryDaysStr, 10) || 30;
+
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - expiryDays);
         
-        if (validKey.createdAt < tenDaysAgo) {
+        if (validKey.createdAt < cutoffDate) {
           // Deactivate it in DB
           await prisma.apiKey.update({
             where: { id: validKey.id },
             data: { isActive: false }
           });
-          throw new AppError(httpStatus.UNAUTHORIZED, 'Your API Key has expired (10 days limit for FREE users). Please generate a new one.');
+          throw new AppError(httpStatus.UNAUTHORIZED, `Your API Key has expired (${expiryDays} days limit for FREE users). Please generate a new one.`);
         }
       }
 

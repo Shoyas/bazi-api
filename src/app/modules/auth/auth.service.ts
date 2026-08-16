@@ -118,6 +118,10 @@ const loginUser = async (payload: any): Promise<ILoginResponse> => {
     throw new AppError(httpStatus.FORBIDDEN, 'Please verify your email first');
   }
 
+  if (user.status === 'blocked' || user.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'Your account has been disabled or blocked. Please contact support.');
+  }
+
   const isPasswordMatched = await bcrypt.compare(payload.password, user.password);
 
   if (!isPasswordMatched) {
