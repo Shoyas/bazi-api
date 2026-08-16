@@ -42,6 +42,7 @@ model User {
   subscription      Subscription?
   apiKeys           ApiKey[]
   apiLogs           ApiLog[]
+  webhookSubscriptions WebhookSubscription[]
 }
 
 model Subscription {
@@ -109,3 +110,32 @@ model ArchivedUser {
   createdAt DateTime @default(now())
   deletedAt DateTime @default(now())
 }
+
+model WebhookSubscription {
+  id           String               @id @default(uuid())
+  userId       String
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url          String
+  description  String?
+  secret       String               // Shared secret for HMAC-SHA256 signature verification
+  events       String[]             // e.g. ['solar_term.changed', 'daily.bazi_shift', 'usage.threshold_reached']
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  logs         WebhookDeliveryLog[]
+}
+
+model WebhookDeliveryLog {
+  id             String              @id @default(uuid())
+  subscriptionId String
+  subscription   WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  event          String
+  payload        Json
+  statusCode     Int?
+  responseBody   String?
+  attempt        Int                 @default(1)
+  status         String              // "success", "failed", "retrying"
+  createdAt      DateTime            @default(now())
+}
+

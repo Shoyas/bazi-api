@@ -102,6 +102,9 @@ const loginUser = async (payload) => {
     if (!user.isEmailVerified) {
         throw new AppError_1.AppError(http_status_1.default.FORBIDDEN, 'Please verify your email first');
     }
+    if (user.status === 'blocked' || user.isDeleted) {
+        throw new AppError_1.AppError(http_status_1.default.FORBIDDEN, 'Your account has been disabled or blocked. Please contact support.');
+    }
     const isPasswordMatched = await bcryptjs_1.default.compare(payload.password, user.password);
     if (!isPasswordMatched) {
         throw new AppError_1.AppError(http_status_1.default.UNAUTHORIZED, 'Invalid credentials');

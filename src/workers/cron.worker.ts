@@ -1,7 +1,10 @@
 import { Worker, Job } from 'bullmq';
+import { Solar } from 'lunar-typescript';
 import { connection } from '../queues/connection';
 import { prisma } from '../shared/prisma';
 import { getSystemSetting } from '../shared/getSystemSetting';
+import { redisClient } from '../shared/redis';
+import { dispatchWebhookEvent } from '../shared/webhookDispatcher';
 
 export const cronWorker = new Worker(
   'cron-queue',
@@ -166,6 +169,68 @@ export const cronWorker = new Worker(
         }
       } catch (error) {
         console.error('[Cron Worker] Error during free user cleanup:', error);
+        throw error;
+      }
+    } else if (job.name === 'daily-bazi-shift') {
+      try {
+        const now = new Date();
+        const solar = Solar.fromDate(now);
+        const lunar = solar.getLunar();
+        const eightChar = lunar.getEightChar();
+
+        const dailyPayload = {
+          date: solar.toYmd(),
+          lunarDate: `${lunar.getYearInGanZhi()} ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
+          dayPillar: {
+            gan: eightChar.getDayGan(),
+            zhi: eightChar.getDayZhi(),
+            wuXing: eightChar.getDayWuXing(),
+            naYin: eightChar.getDayNaYin(),
+          },
+          zodiac: lunar.getYearShengXiao(),
+          solarTerm: lunar.getJieQi() || null,
+        };
+
+        const result = await dispatchWebhookEvent('daily.bazi_shift', dailyPayload);
+        console.log(`[Cron Worker] Daily BaZi shift event broadcasted to ${result.dispatchedCount} active endpoints.`);
+      } catch (error) {
+        console.error('[Cron Worker] Error during daily BaZi shift broadcast:', error);
+        throw error;
+      }
+    } else if (job.name === 'solar-term-check') {
+      try {
+        const now = new Date();
+        const solar = Solar.fromDate(now);
+        const lunar = solar.getLunar();
+        const currentJieQi = lunar.getJieQi();
+
+        if (currentJieQi) {
+          const dateKey = solar.toYmd();
+          const redisKey = `dispatched_solar_term_${currentJieQi}_${dateKey}`;
+          const alreadyDispatched = await redisClient.get(redisKey);
+
+          if (!alreadyDispatched) {
+            const solarTermPayload = {
+              solarTerm: currentJieQi,
+              date: dateKey,
+              solarDateTime: solar.toYmdHms(),
+              chineseYear: lunar.getYearInGanZhi(),
+              lunarMonth: lunar.getMonthInChinese(),
+              lunarDay: lunar.getDayInChinese(),
+            };
+
+            const result = await dispatchWebhookEvent('solar_term.changed', solarTermPayload);
+            await redisClient.setex(redisKey, 86400 * 2, '1'); // Cache for 2 days
+
+            console.log(
+              `[Cron Worker] Solar term change (${currentJieQi}) broadcasted to ${result.dispatchedCount} active endpoints.`
+            );
+          } else {
+            console.log(`[Cron Worker] Solar term (${currentJieQi}) already dispatched today.`);
+          }
+        }
+      } catch (error) {
+        console.error('[Cron Worker] Error during solar term check broadcast:', error);
         throw error;
       }
     } else {

@@ -38,6 +38,19 @@ const startServer = async () => {
   });
   console.log('[BullMQ] Scheduled free-user-cleanup repeatable job');
   console.log('[BullMQ] Scheduled subscription-cleanup repeatable job');
+
+  // Schedule Webhook Event Triggers
+  await cronQueue.add('daily-bazi-shift', {}, {
+    repeat: { pattern: '0 0 * * *' }, // Run daily at midnight
+    jobId: 'daily-bazi-shift-broadcast'
+  });
+  console.log('[BullMQ] Scheduled daily-bazi-shift webhook broadcast job');
+
+  await cronQueue.add('solar-term-check', {}, {
+    repeat: { pattern: '0 1 * * *' }, // Run daily at 01:00 AM
+    jobId: 'daily-solar-term-check'
+  });
+  console.log('[BullMQ] Scheduled solar-term-check webhook broadcast job');
   
   const server = app.listen(PORT, () => {
     console.log(`Server is running on port: ${PORT}`);
