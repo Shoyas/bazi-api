@@ -6,7 +6,7 @@ Welcome to the central API documentation repository for the **BaZi API SaaS Plat
 
 ## 📚 Documentation Index (Module-Wise)
 
-| # | Module | Documentation File | Description | Auth Required |
+| # | Module / Guide | Documentation File | Description | Auth Required |
 | :-: | :--- | :--- | :--- | :-: |
 | 1 | **Authentication** | [1. auth_api_postman_collection.md](./1.%20auth_api_postman_collection.md) | User Registration, Email OTP verification, Login, Token Refresh, Password Reset & Logout. | Public / JWT |
 | 2 | **User & Admin** | [2. user_api_postman_collection.md](./2.%20user_api_postman_collection.md) | Profile management, Admin user management, Block/Unblock users, Bulk soft-delete. | Bearer JWT |
@@ -15,6 +15,7 @@ Welcome to the central API documentation repository for the **BaZi API SaaS Plat
 | 5 | **BaZi Calculation Engine** | [5. bazi_calculation_api_doc.md](./5.%20bazi_calculation_api_doc.md) | Core Four Pillars calculation engine, Stems, Branches, Elements, Ten Gods, Stars, Luck Pillars. | `x-api-key` |
 | 6 | **Custom Outbound Webhooks** | [6. custom_webhook_api_doc.md](./6.%20custom_webhook_api_doc.md) | Outbound webhooks for PRO/PREMIUM: Register endpoints, HMAC-SHA256 signature verification, Solar Term & Daily events. | Bearer JWT |
 | 7 | **System Settings (Admin)** | [7. system_setting_api_doc.md](./7.%20system_setting_api_doc.md) | Dynamic system configuration management (Rate limit penalty, Free retention days, Key expiry days). | Admin JWT |
+| 8 | **SDK & Integrations Blueprint** | [8. sdk_and_integrations_guideline.md](./8.%20sdk_and_integrations_guideline.md) | Standard blueprint for TypeScript/JS SDK, Python SDK, OpenAI/LangChain tools, n8n, Zapier, Make, Bubble & Mobile Apps. | Dev Guide |
 
 ---
 
