@@ -23,7 +23,7 @@ Welcome to the central API documentation repository for the **BaZi API SaaS Plat
 
 ### 1. Base URL
 ```
-https://api.bazi-api.com/api/v1
+https://api.baziapi.pro/api/v1
 ```
 *(For local development: `http://localhost:3031/api/v1`)*
 
