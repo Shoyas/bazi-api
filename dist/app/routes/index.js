@@ -10,6 +10,7 @@ const subscription_routes_1 = require("../modules/subscription/subscription.rout
 const bazi_routes_1 = require("../modules/bazi/bazi.routes");
 const user_routes_1 = require("../modules/user/user.routes");
 const systemSetting_routes_1 = require("../modules/systemSetting/systemSetting.routes");
+const customWebhook_routes_1 = require("../modules/customWebhook/customWebhook.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -35,6 +36,10 @@ const moduleRoutes = [
     {
         path: '/system-settings',
         route: systemSetting_routes_1.SystemSettingRoutes,
+    },
+    {
+        path: '/custom-webhooks',
+        route: customWebhook_routes_1.CustomWebhookRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
