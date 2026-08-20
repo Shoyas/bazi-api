@@ -36,11 +36,11 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      PORT: 5111
+      PORT: 3031
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5111/ || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3031/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -62,11 +62,11 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      PORT: 5111
+      PORT: 3031
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5111/ || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3031/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
