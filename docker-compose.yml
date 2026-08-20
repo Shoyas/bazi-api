@@ -4,12 +4,28 @@ services:
     container_name: bazi_api_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "${API_PORT:-3031}:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - api1
-      - api2
+      api1:
+        condition: service_healthy
+      api2:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  db-migrate:
+    build: .
+    image: bazi-api
+    container_name: bazi_db_migrate
+    restart: "no"
+    command: ["npx", "prisma", "db", "push", "--skip-generate"]
+    environment:
+      DATABASE_URL: "postgres://root:password@postgres-primary:5432/bazi_saas"
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -23,9 +39,19 @@ services:
       PORT: 5111
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5111/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
       redis:
         condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      db-migrate:
+        condition: service_completed_successfully
     networks:
       - app-network
 
@@ -39,9 +65,19 @@ services:
       PORT: 5111
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:5111/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
       redis:
         condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      db-migrate:
+        condition: service_completed_successfully
     networks:
       - app-network
 
@@ -58,6 +94,10 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      db-migrate:
+        condition: service_completed_successfully
     networks:
       - app-network
 
@@ -67,9 +107,11 @@ services:
     restart: unless-stopped
     ports:
       - "6380:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
     networks:
@@ -84,6 +126,13 @@ services:
       POSTGRES_DB: bazi_saas
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata_primary:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d bazi_saas"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
@@ -96,6 +145,8 @@ services:
       POSTGRES_DB: bazi_saas
     ports:
       - "5433:5432"
+    volumes:
+      - pgdata_replica:/var/lib/postgresql/data
     networks:
       - app-network
 
@@ -113,9 +164,15 @@ services:
     ports:
       - "6432:6432"
     depends_on:
-      - postgres-primary
+      postgres-primary:
+        condition: service_healthy
     networks:
       - app-network
+
+volumes:
+  pgdata_primary:
+  pgdata_replica:
+  redis_data:
 
 networks:
   app-network:
