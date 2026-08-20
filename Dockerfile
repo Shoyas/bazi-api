@@ -40,8 +40,8 @@ COPY --from=builder /app/prisma ./prisma
 
 # ENV
 ENV NODE_ENV=production
-ENV PORT=5111
+ENV PORT=3031
 
-EXPOSE 5111
+EXPOSE 3031
 
 CMD ["node", "dist/server.js"]
