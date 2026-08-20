@@ -2,8 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cronWorker = void 0;
 const bullmq_1 = require("bullmq");
+const lunar_typescript_1 = require("lunar-typescript");
 const connection_1 = require("../queues/connection");
 const prisma_1 = require("../shared/prisma");
+const getSystemSetting_1 = require("../shared/getSystemSetting");
+const redis_1 = require("../shared/redis");
+const webhookDispatcher_1 = require("../shared/webhookDispatcher");
 exports.cronWorker = new bullmq_1.Worker('cron-queue', async (job) => {
     console.log(`[Cron Worker] Processing job: ${job.name} (ID: ${job.id})`);
     if (job.name === 'otp-cleanup') {
@@ -55,14 +59,17 @@ exports.cronWorker = new bullmq_1.Worker('cron-queue', async (job) => {
     }
     else if (job.name === 'apikey-cleanup') {
         try {
-            const tenDaysAgo = new Date();
-            tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-            // Find all active API keys that are older than 10 days
+            // Fetch dynamic free API key expiration days from System Settings (default: 30 days)
+            const expiryDaysStr = await (0, getSystemSetting_1.getSystemSetting)('free_api_key_expiry_days', '30');
+            const expiryDays = parseInt(expiryDaysStr, 10) || 30;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - expiryDays);
+            // Find all active API keys that are older than expiryDays
             // but only for FREE users.
             const expiredKeys = await prisma_1.prisma.apiKey.findMany({
                 where: {
                     isActive: true,
-                    createdAt: { lt: tenDaysAgo },
+                    createdAt: { lt: cutoffDate },
                     user: {
                         OR: [
                             { subscription: null },
@@ -80,10 +87,10 @@ exports.cronWorker = new bullmq_1.Worker('cron-queue', async (job) => {
                         isActive: false,
                     },
                 });
-                console.log(`[Cron Worker] API Key cleanup completed. Revoked ${updated.count} expired FREE API keys.`);
+                console.log(`[Cron Worker] API Key cleanup completed (${expiryDays} days threshold). Revoked ${updated.count} expired FREE API keys.`);
             }
             else {
-                console.log('[Cron Worker] No expired FREE API keys found.');
+                console.log(`[Cron Worker] No expired FREE API keys found (threshold: ${expiryDays} days).`);
             }
         }
         catch (error) {
@@ -112,13 +119,18 @@ exports.cronWorker = new bullmq_1.Worker('cron-queue', async (job) => {
     }
     else if (job.name === 'free-user-cleanup') {
         try {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            // Find users with FREE plan older than 30 days
+            // Fetch dynamic retention days from System Settings (default: 180 days / 6 months)
+            const retentionDaysStr = await (0, getSystemSetting_1.getSystemSetting)('free_user_retention_days', '180');
+            const retentionDays = parseInt(retentionDaysStr, 10) || 180;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+            // Find active FREE users whose account was created more than retentionDays ago
             const expiredFreeUsers = await prisma_1.prisma.user.findMany({
                 where: {
                     role: 'USER',
-                    createdAt: { lt: thirtyDaysAgo },
+                    status: { not: 'blocked' },
+                    isDeleted: false,
+                    createdAt: { lt: cutoffDate },
                     OR: [
                         { subscription: null },
                         { subscription: { plan: 'FREE' } },
@@ -126,31 +138,93 @@ exports.cronWorker = new bullmq_1.Worker('cron-queue', async (job) => {
                 },
             });
             if (expiredFreeUsers.length > 0) {
-                // Archive their info
-                await prisma_1.prisma.archivedUser.createMany({
-                    data: expiredFreeUsers.map(user => ({
-                        id: user.id,
-                        name: user.name,
-                        email: user.email,
-                        country: user.country,
-                        createdAt: user.createdAt,
-                    })),
-                    skipDuplicates: true,
-                });
-                // Delete them from User table (this cascades keys/logs/subscriptions)
-                const deleted = await prisma_1.prisma.user.deleteMany({
+                const userIds = expiredFreeUsers.map((u) => u.id);
+                // Disable/Block their account status
+                const updatedUsers = await prisma_1.prisma.user.updateMany({
                     where: {
-                        id: { in: expiredFreeUsers.map(u => u.id) },
+                        id: { in: userIds },
+                    },
+                    data: {
+                        status: 'blocked',
                     },
                 });
-                console.log(`[Cron Worker] Free user cleanup completed. Archived and deleted ${deleted.count} users.`);
+                // Deactivate all active API keys of these disabled users
+                const updatedKeys = await prisma_1.prisma.apiKey.updateMany({
+                    where: {
+                        userId: { in: userIds },
+                        isActive: true,
+                    },
+                    data: {
+                        isActive: false,
+                    },
+                });
+                console.log(`[Cron Worker] Free user cleanup completed (${retentionDays} days threshold). Disabled ${updatedUsers.count} user accounts and deactivated ${updatedKeys.count} API keys.`);
             }
             else {
-                console.log('[Cron Worker] No expired FREE users found for cleanup.');
+                console.log(`[Cron Worker] No expired FREE users found to disable (threshold: ${retentionDays} days).`);
             }
         }
         catch (error) {
             console.error('[Cron Worker] Error during free user cleanup:', error);
+            throw error;
+        }
+    }
+    else if (job.name === 'daily-bazi-shift') {
+        try {
+            const now = new Date();
+            const solar = lunar_typescript_1.Solar.fromDate(now);
+            const lunar = solar.getLunar();
+            const eightChar = lunar.getEightChar();
+            const dailyPayload = {
+                date: solar.toYmd(),
+                lunarDate: `${lunar.getYearInGanZhi()} ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
+                dayPillar: {
+                    gan: eightChar.getDayGan(),
+                    zhi: eightChar.getDayZhi(),
+                    wuXing: eightChar.getDayWuXing(),
+                    naYin: eightChar.getDayNaYin(),
+                },
+                zodiac: lunar.getYearShengXiao(),
+                solarTerm: lunar.getJieQi() || null,
+            };
+            const result = await (0, webhookDispatcher_1.dispatchWebhookEvent)('daily.bazi_shift', dailyPayload);
+            console.log(`[Cron Worker] Daily BaZi shift event broadcasted to ${result.dispatchedCount} active endpoints.`);
+        }
+        catch (error) {
+            console.error('[Cron Worker] Error during daily BaZi shift broadcast:', error);
+            throw error;
+        }
+    }
+    else if (job.name === 'solar-term-check') {
+        try {
+            const now = new Date();
+            const solar = lunar_typescript_1.Solar.fromDate(now);
+            const lunar = solar.getLunar();
+            const currentJieQi = lunar.getJieQi();
+            if (currentJieQi) {
+                const dateKey = solar.toYmd();
+                const redisKey = `dispatched_solar_term_${currentJieQi}_${dateKey}`;
+                const alreadyDispatched = await redis_1.redisClient.get(redisKey);
+                if (!alreadyDispatched) {
+                    const solarTermPayload = {
+                        solarTerm: currentJieQi,
+                        date: dateKey,
+                        solarDateTime: solar.toYmdHms(),
+                        chineseYear: lunar.getYearInGanZhi(),
+                        lunarMonth: lunar.getMonthInChinese(),
+                        lunarDay: lunar.getDayInChinese(),
+                    };
+                    const result = await (0, webhookDispatcher_1.dispatchWebhookEvent)('solar_term.changed', solarTermPayload);
+                    await redis_1.redisClient.setex(redisKey, 86400 * 2, '1'); // Cache for 2 days
+                    console.log(`[Cron Worker] Solar term change (${currentJieQi}) broadcasted to ${result.dispatchedCount} active endpoints.`);
+                }
+                else {
+                    console.log(`[Cron Worker] Solar term (${currentJieQi}) already dispatched today.`);
+                }
+            }
+        }
+        catch (error) {
+            console.error('[Cron Worker] Error during solar term check broadcast:', error);
             throw error;
         }
     }

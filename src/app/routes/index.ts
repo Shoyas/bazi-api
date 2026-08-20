@@ -5,6 +5,7 @@ import { SubscriptionRoutes } from '../modules/subscription/subscription.routes'
 import { BaziRoutes } from '../modules/bazi/bazi.routes';
 import { UserRoutes } from '../modules/user/user.routes';
 import { SystemSettingRoutes } from '../modules/systemSetting/systemSetting.routes';
+import { CustomWebhookRoutes } from '../modules/customWebhook/customWebhook.routes';
 
 const router = express.Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: '/system-settings',
     route: SystemSettingRoutes,
+  },
+  {
+    path: '/custom-webhooks',
+    route: CustomWebhookRoutes,
   },
 ];
 

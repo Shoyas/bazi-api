@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CustomWebhookRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const authGuard_1 = __importDefault(require("../../middlewares/authGuard"));
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const customWebhook_validation_1 = require("./customWebhook.validation");
+const customWebhook_controller_1 = require("./customWebhook.controller");
+const router = express_1.default.Router();
+router.post('/', (0, authGuard_1.default)(), (0, validateRequest_1.default)(customWebhook_validation_1.CustomWebhookValidation.createWebhookZodSchema), customWebhook_controller_1.CustomWebhookController.createWebhook);
+router.get('/', (0, authGuard_1.default)(), customWebhook_controller_1.CustomWebhookController.getUserWebhooks);
+router.get('/:id', (0, authGuard_1.default)(), customWebhook_controller_1.CustomWebhookController.getWebhookDetails);
+router.patch('/:id', (0, authGuard_1.default)(), (0, validateRequest_1.default)(customWebhook_validation_1.CustomWebhookValidation.updateWebhookZodSchema), customWebhook_controller_1.CustomWebhookController.updateWebhook);
+router.delete('/:id', (0, authGuard_1.default)(), customWebhook_controller_1.CustomWebhookController.deleteWebhook);
+router.post('/:id/test', (0, authGuard_1.default)(), customWebhook_controller_1.CustomWebhookController.triggerTestWebhook);
+router.get('/:id/logs', (0, authGuard_1.default)(), customWebhook_controller_1.CustomWebhookController.getWebhookDeliveryLogs);
+exports.CustomWebhookRoutes = router;
