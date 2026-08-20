@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import corsOptions from "../src/config/cors";
+import corsOptions from "./config/cors";
 import { WebhookRoutes } from "./app/modules/webhook/webhook.routes";
 import router from "./app/routes";
 import config from "./config";
