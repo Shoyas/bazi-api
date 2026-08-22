@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+model User {
+  id                String         @id @default(uuid())
+  name              String
+  email             String         @unique
+  password          String
+  country           String?
+  role              Role           @default(USER)
+  isEmailVerified   Boolean        @default(false)
+  verificationToken String?
+  isDeleted         Boolean        @default(false)
+  status            String         @default("active")
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  subscription      Subscription?
+  apiKeys           ApiKey[]
+  apiLogs           ApiLog[]
+  webhookSubscriptions WebhookSubscription[]
+}
+
+model Subscription {
+  id                String           @id @default(uuid())
+  userId            String           @unique
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan              SubscriptionPlan @default(FREE)
+  billingCycle      BillingCycle?
+  lemonSqueezyId    String?          // Customer ID in Lemon Squeezy
+  lemonSubscriptionId String?        // Subscription ID in Lemon Squeezy
+  status            String           @default("active") // active, past_due, canceled
+  startDate         DateTime         @default(now())
+  endDate           DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prefix    String   // E.g. bazi_a1b2
+  keyHash   String   // Hashed full API key
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  logs      ApiLog[]
+}
+
+model ApiLog {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKeyId     String?
+  apiKey       ApiKey?  @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  endpoint     String
+  method       String
+  status       Int
+  responseTime Int      // In milliseconds
+  createdAt    DateTime @default(now())
+}
+
+model Otp {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique // e.g., 'rate_limit_block_minutes'
+  value       String   // e.g., '15'
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model ArchivedUser {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  country   String?
+  createdAt DateTime @default(now())
+  deletedAt DateTime @default(now())
+}
+
+model WebhookSubscription {
+  id           String               @id @default(uuid())
+  userId       String
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url          String
+  description  String?
+  secret       String               // Shared secret for HMAC-SHA256 signature verification
+  events       String[]             // e.g. ['solar_term.changed', 'daily.bazi_shift', 'usage.threshold_reached']
+  isActive     Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  logs         WebhookDeliveryLog[]
+}
+
+model WebhookDeliveryLog {
+  id             String              @id @default(uuid())
+  subscriptionId String
+  subscription   WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  event          String
+  payload        Json
+  statusCode     Int?
+  responseBody   String?
+  attempt        Int                 @default(1)
+  status         String              // "success", "failed", "retrying"
+  createdAt      DateTime            @default(now())
+}
+

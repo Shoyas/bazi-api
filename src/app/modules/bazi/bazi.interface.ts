@@ -6,9 +6,16 @@ export interface IBaziRequest {
   language?: "en" | "zh";
 }
 
+export interface ILiuNian {
+  year: number;
+  age: number;
+  pillar: string;
+}
+
 export interface ILuckPillar {
   age: number;
   pillar: string;
+  annualLuck?: ILiuNian[];
 }
 
 export interface IBaziResponseData {
@@ -40,6 +47,11 @@ export interface IBaziResponseData {
     monthPillar: string;
     dayPillar: string;
     hourPillar: string;
+  } | null;
+  advancedPillars: {
+    taiYuan: string;
+    mingGong: string;
+    shenGong: string;
   } | null;
   heavenlyStems: {
     yearStem: string;
@@ -97,20 +109,42 @@ export interface IBaziResponseData {
     startingAge: number;
     startingDate: string | null;
     pillars: ILuckPillar[];
+    minorLuck: ILiuNian[];
   } | null;
   analysis: {
+    dayMasterStrength: string | null;
     strongestElement: string | null;
     weakestElement: string | null;
     missingElements: string[];
     balanced: boolean | null;
+    favorableElements: string[];
+    unfavorableElements: string[];
+    yongShen: string | null;
     voidBranch: string | null;
     twelveGrowthPhases: string[] | null;
     godsAndStars: {
-      nobleman: string | null;
-      peachBlossom: string | null;
-      academicStar: string | null;
-      travelHorse: string | null;
-      generalStar: string | null;
+      nobleman: string[] | null;
+      peachBlossom: string[] | null;
+      academicStar: string[] | null;
+      travelHorse: string[] | null;
+      generalStar: string[] | null;
     } | null;
+    interactions: {
+      clashes: string[];
+      combinations: string[];
+      punishments: string[];
+      harms: string[];
+    } | null;
+  } | null;
+  lifePredictions: {
+    careerDirection: string | null;
+    wealthPotential: string | null;
+    healthFocus: string[];
+  } | null;
+  currentAnnualLuck: {
+    currentYear: number;
+    annualPillar: string;
+    overallFortune: string;
+    keyEvents: string[];
   } | null;
 }
