@@ -21,11 +21,7 @@ services:
     container_name: bazi_db_migrate
     restart: "no"
     command: ["npx", "prisma", "db", "push", "--skip-generate"]
-    environment:
-      DATABASE_URL: "postgres://root:password@postgres-primary:5432/bazi_saas"
-    depends_on:
-      postgres-primary:
-        condition: service_healthy
+    env_file: .env
     networks:
       - app-network
 
@@ -38,7 +34,6 @@ services:
     environment:
       PORT: 3031
       REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: "postgres://root:password@pgbouncer:5432/bazi_saas?pgbouncer=true"
     healthcheck:
       test:
         [
@@ -52,8 +47,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      pgbouncer:
-        condition: service_started
       db-migrate:
         condition: service_completed_successfully
     networks:
@@ -68,7 +61,6 @@ services:
     environment:
       PORT: 3031
       REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: "postgres://root:password@pgbouncer:5432/bazi_saas?pgbouncer=true"
     healthcheck:
       test:
         [
@@ -82,8 +74,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      pgbouncer:
-        condition: service_started
       db-migrate:
         condition: service_completed_successfully
     networks:
@@ -98,12 +88,9 @@ services:
     env_file: .env
     environment:
       REDIS_URL: "redis://redis:6379"
-      DATABASE_URL: "postgres://root:password@pgbouncer:5432/bazi_saas?pgbouncer=true"
     depends_on:
       redis:
         condition: service_healthy
-      pgbouncer:
-        condition: service_started
       db-migrate:
         condition: service_completed_successfully
     networks:
@@ -125,62 +112,7 @@ services:
     networks:
       - app-network
 
-  postgres-primary:
-    image: postgres:15-alpine
-    container_name: bazi_pg_primary
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: bazi_saas
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata_primary:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d bazi_saas"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
-
-  postgres-replica:
-    image: postgres:15-alpine
-    container_name: bazi_pg_replica
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: bazi_saas
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata_replica:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-  pgbouncer:
-    image: edoburu/pgbouncer:latest
-    container_name: bazi_pgbouncer
-    environment:
-      DB_USER: root
-      DB_PASSWORD: password
-      DB_HOST: postgres-primary
-      DB_NAME: bazi_saas
-      LISTEN_PORT: 6432
-      POOL_MODE: transaction
-      MAX_CLIENT_CONN: 1000
-      DEFAULT_POOL_SIZE: 20
-    ports:
-      - "6432:6432"
-    depends_on:
-      postgres-primary:
-        condition: service_healthy
-    networks:
-      - app-network
-
 volumes:
-  pgdata_primary:
-  pgdata_replica:
   redis_data:
 
 networks:
