@@ -12,8 +12,8 @@ COPY pnpm-lock.yaml* ./
 # Install pnpm
 RUN npm install -g pnpm
 
-# Install dependencies
-RUN pnpm install
+# Install dependencies with hoisted node_modules
+RUN pnpm install --shamefully-hoist
 
 # Copy source and config files
 COPY . .
