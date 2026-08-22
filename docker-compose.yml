@@ -40,7 +40,11 @@ services:
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3031/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://127.0.0.1:3031/ || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -66,7 +70,11 @@ services:
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "postgres://root:password@pgbouncer:6432/bazi_saas?pgbouncer=true"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3031/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://127.0.0.1:3031/ || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -158,6 +166,7 @@ services:
       DB_PASSWORD: password
       DB_HOST: postgres-primary
       DB_NAME: bazi_saas
+      LISTEN_PORT: 6432
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 1000
       DEFAULT_POOL_SIZE: 20

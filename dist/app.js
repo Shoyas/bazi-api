@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
-const cors_2 = __importDefault(require("../src/config/cors"));
+const cors_2 = __importDefault(require("./config/cors"));
 const webhook_routes_1 = require("./app/modules/webhook/webhook.routes");
 const routes_1 = __importDefault(require("./app/routes"));
 const config_1 = __importDefault(require("./config"));
